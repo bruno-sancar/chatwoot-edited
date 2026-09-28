@@ -84,6 +84,46 @@
       "ENVIAR": "Registrar avaliação",
       "ENVIADO": "Avaliação registrada. A classificação de risco foi recalculada."
     },
+    "CONFIGURACOES": {
+      "TITULO": "Kanban Clínico",
+      "DESCRICAO": "Propriedades, usuários e dados do Kanban Clínico. Mudanças maiores que isso (novo tipo de campo, nova etapa, nova automação) precisam ser combinadas com a Sancar.",
+      "ABA_PROPRIEDADES": "Propriedades por etapa",
+      "ABA_USUARIOS": "Usuários e permissões",
+      "ABA_IMPORTAR_EXPORTAR": "Importar/Exportar",
+      "SEM_PERMISSAO_EDICAO": "Você pode visualizar, mas só coordenação técnica, direção ou um editor de configuração pode alterar.",
+      "ERRO_SALVAR": "Não foi possível salvar. Tente novamente.",
+      "PROPRIEDADES": {
+        "NOVA": "Nova propriedade",
+        "SALVAR": "Salvar",
+        "VAZIO": "Nenhuma propriedade cadastrada.",
+        "COLUNA_ROTULO": "Rótulo",
+        "COLUNA_FORMULARIO": "Formulário",
+        "COLUNA_BLOCO": "Bloco",
+        "COLUNA_TIPO": "Tipo",
+        "COLUNA_OBRIGATORIO": "Obrigatório",
+        "COLUNA_ATIVO": "Ativo",
+        "PLACEHOLDER_ETAPA": "Etapa (ex: f1_f2)",
+        "PLACEHOLDER_BLOCO": "Bloco (ex: clinico)",
+        "PLACEHOLDER_CHAVE": "chave_do_campo",
+        "PLACEHOLDER_ROTULO": "Rótulo exibido"
+      },
+      "USUARIOS": {
+        "SELECIONE_AGENTE": "Selecione um agente",
+        "CONCEDER": "Conceder acesso",
+        "VAZIO": "Nenhum editor de configuração além de coordenação/direção.",
+        "COLUNA_NOME": "Nome",
+        "COLUNA_CONCEDIDO_EM": "Concedido em"
+      },
+      "IMPORTAR_EXPORTAR": {
+        "EXPORTAR_TITULO": "Exportar catálogo",
+        "EXPORTAR_DESCRICAO": "Baixa todas as propriedades configuradas em JSON.",
+        "EXPORTAR_BOTAO": "Exportar",
+        "IMPORTAR_TITULO": "Importar catálogo",
+        "IMPORTAR_DESCRICAO": "Carrega um arquivo para revisão. A importação de fato (gravar no banco) ainda não está disponível nesta versão — fale com a Sancar para migrar um catálogo grande.",
+        "ARQUIVO_LIDO": "Arquivo lido: {n} propriedades. Revise no console antes de aplicar manualmente.",
+        "ARQUIVO_INVALIDO": "Arquivo inválido — esperado um JSON exportado por esta tela."
+      }
+    },
     "HISTORICO": {
       "TITULO": "Histórico do paciente",
       "VAZIO": "Nenhum formulário enviado ainda.",

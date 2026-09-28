@@ -877,6 +877,12 @@ const menuItems = computed(() => {
           to: accountScopedRoute('attributes_list'),
         },
         {
+          name: 'Settings Kanban Clinico',
+          label: t('SIDEBAR.KANBAN_CLINICO'),
+          icon: 'i-lucide-layout-list',
+          to: accountScopedRoute('kanban_clinico_configuracoes'),
+        },
+        {
           name: 'Settings Automation',
           label: t('SIDEBAR.AUTOMATION'),
           icon: 'i-lucide-repeat',

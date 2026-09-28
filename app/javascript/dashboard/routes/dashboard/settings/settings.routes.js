@@ -28,6 +28,7 @@ import security from './security/security.routes';
 import conversationWorkflow from './conversationWorkflow/conversationWorkflow.routes';
 import captain from './captain/captain.routes';
 import data from './data/data.routes';
+import kanbanClinico from './kanbanClinico/kanbanClinico.routes';
 
 export default {
   routes: [
@@ -71,5 +72,6 @@ export default {
     ...security.routes,
     ...conversationWorkflow.routes,
     ...captain.routes,
+    ...kanbanClinico.routes,
   ],
 };
