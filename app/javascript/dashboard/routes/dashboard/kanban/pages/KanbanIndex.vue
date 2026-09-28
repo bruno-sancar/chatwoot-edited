@@ -1,16 +1,20 @@
 <script setup>
 import { ref, computed, watch, onMounted, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 import KanbanCard from '../components/KanbanCard.vue';
 import KanbanColumn from '../components/KanbanColumn.vue';
 import { useFocohKanban } from '../useFocohKanban';
 import { FASES_JORNADA, CODIGOS_TRAVA } from '../constants';
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 
 const {
   isConfigured,
@@ -72,18 +76,34 @@ const onMove = async (card, faseDestino) => {
   await carregarCards();
 };
 
+const abrirAdmissao = () => {
+  router.push({
+    name: 'kanban_clinico_admissao',
+    params: { accountId: route.params.accountId },
+  });
+};
+
 onMounted(carregarCards);
 </script>
 
 <template>
   <section class="flex flex-col w-full h-full overflow-hidden bg-n-surface-1">
-    <header class="px-6 pt-6 shrink-0">
-      <h1 class="text-heading-1 text-n-slate-12">
-        {{ t('KANBAN.HEADER') }}
-      </h1>
-      <p class="mt-1 text-body-main text-n-slate-11">
-        {{ t('KANBAN.SUBTITULO') }}
-      </p>
+    <header class="flex items-start justify-between gap-4 px-6 pt-6 shrink-0">
+      <div>
+        <h1 class="text-heading-1 text-n-slate-12">
+          {{ t('KANBAN.HEADER') }}
+        </h1>
+        <p class="mt-1 text-body-main text-n-slate-11">
+          {{ t('KANBAN.SUBTITULO') }}
+        </p>
+      </div>
+      <Button
+        v-if="isConfigured"
+        :label="t('FOCOH_KANBAN.ADMISSAO.CRIAR_PACIENTE')"
+        icon="i-lucide-plus"
+        size="sm"
+        @click="abrirAdmissao"
+      />
     </header>
 
     <div

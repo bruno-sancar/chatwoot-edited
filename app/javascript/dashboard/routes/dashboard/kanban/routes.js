@@ -1,6 +1,7 @@
 import { CONVERSATION_PERMISSIONS, ROLES } from 'dashboard/constants/permissions';
 import { frontendURL } from '../../../helper/URLHelper';
 import KanbanIndex from './pages/KanbanIndex.vue';
+import AdmissaoForm from './pages/AdmissaoForm.vue';
 import ProgressaoFaseForm from './pages/ProgressaoFaseForm.vue';
 import AvaliacaoRiscoForm from './pages/AvaliacaoRiscoForm.vue';
 
@@ -20,6 +21,14 @@ export const routes = [
     path: frontendURL('accounts/:accountId/kanban'),
     name: 'kanban_clinico_index',
     component: KanbanIndex,
+    meta: {
+      permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
+    },
+  },
+  {
+    path: frontendURL('accounts/:accountId/kanban/admissao'),
+    name: 'kanban_clinico_admissao',
+    component: AdmissaoForm,
     meta: {
       permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
     },

@@ -50,6 +50,13 @@
     }
   },
   "FOCOH_KANBAN": {
+    "ADMISSAO": {
+      "CRIAR_PACIENTE": "Criar paciente",
+      "TITULO": "Ficha de Admissão",
+      "SUBTITULO": "Identificação e Rede de Apoio — cria o registro do paciente",
+      "ABA_A": "A — Identificação e Rede de Apoio",
+      "CRIADO": "Paciente admitido. O card já aparece na coluna de Admissão."
+    },
     "CAMPO": {
       "SELECIONE": "Selecione",
       "CONFIRMO_AVALIACAO": "Confirmo esta avaliação"
