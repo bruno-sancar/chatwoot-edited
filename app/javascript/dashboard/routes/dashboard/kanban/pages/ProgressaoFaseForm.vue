@@ -131,7 +131,8 @@ const onEnviarBloco = async (bloco, { respostas, resultado }) => {
     bloco,
     dataReferencia: new Date().toISOString().slice(0, 10),
     respostas,
-    resultado: BLOCOS_COM_DECISAO.has(bloco) ? resultado : (resultado ?? null),
+    // FocohBlocoFormulario já garante null para bloco sem decisão.
+    resultado,
   });
 
   if (ok) {

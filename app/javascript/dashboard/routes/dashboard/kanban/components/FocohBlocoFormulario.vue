@@ -33,7 +33,9 @@ const emit = defineEmits(['enviar']);
 const { t } = useI18n();
 
 const valores = reactive({});
-const decisao = ref(null);
+// '' e não null: Select.vue tipa modelValue como String/Number/Boolean (o
+// componente nativo <select> não representa "nenhuma opção" com null).
+const decisao = ref('');
 const tentouEnviar = ref(false);
 const aberto = ref(true);
 
@@ -58,7 +60,9 @@ const enviar = () => {
     valor: valores[definicao.campo_chave] ?? null,
   }));
 
-  emit('enviar', { respostas, resultado: decisao.value });
+  // Bloco sem decisão manda `null`, não '' — a coluna `resultado` no banco
+  // é o veredito do bloco, e string vazia não é um veredito válido.
+  emit('enviar', { respostas, resultado: props.comDecisao ? decisao.value : null });
 };
 </script>
 

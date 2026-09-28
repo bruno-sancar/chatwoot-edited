@@ -9,12 +9,15 @@
 
 -- ----------------------------------------------------------------------------
 -- Helper: extrai o valor de um campo pela chave, do array `campos` de uma
--- resposta. Devolve jsonb (o chamador faz o cast que precisar).
+-- resposta. Devolve TEXT (via `->>`, não `->`) de propósito: Postgres não
+-- tem cast direto de jsonb para int/numeric (`(jsonb)::int` levanta
+-- "cannot cast type jsonb to integer"). Texto é o denominador comum que
+-- todo `::tipo` sabe converter — quem chama decide o cast final.
 -- ----------------------------------------------------------------------------
-create function focoh_interno.valor_campo_resposta(p_campos jsonb, p_chave text) returns jsonb
+create function focoh_interno.valor_campo_resposta(p_campos jsonb, p_chave text) returns text
   language sql immutable parallel safe set search_path = ''
   as $fn$
-    select elem -> 'valor'
+    select elem ->> 'valor'
       from pg_catalog.jsonb_array_elements(p_campos) as elem
      where elem ->> 'campo_chave' = p_chave
      limit 1
