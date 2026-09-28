@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 import FocohBlocoFormulario from '../components/FocohBlocoFormulario.vue';
 import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
@@ -21,7 +22,15 @@ import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient'
  */
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const pacienteId = route.params.pacienteId;
+
+const abrirAvaliacaoRisco = () => {
+  router.push({
+    name: 'kanban_clinico_avaliacao_risco',
+    params: { accountId: route.params.accountId, pacienteId },
+  });
+};
 
 // fase_jornada -> transição avaliada para SAIR da fase atual. Não há
 // transição para quem já está em admissão (a saída dali é 72h + triagem,
@@ -145,13 +154,22 @@ onMounted(async () => {
     </div>
 
     <template v-else-if="paciente">
-      <header>
-        <h1 class="text-heading-1 text-n-slate-12">
-          {{ t('FOCOH_KANBAN.PROGRESSAO.TITULO') }}
-        </h1>
-        <p class="mt-1 text-body-main text-n-slate-11">
-          {{ t('FOCOH_KANBAN.PROGRESSAO.SUBTITULO', { nome: paciente.nome, transicao }) }}
-        </p>
+      <header class="flex items-start justify-between gap-4">
+        <div>
+          <h1 class="text-heading-1 text-n-slate-12">
+            {{ t('FOCOH_KANBAN.PROGRESSAO.TITULO') }}
+          </h1>
+          <p class="mt-1 text-body-main text-n-slate-11">
+            {{ t('FOCOH_KANBAN.PROGRESSAO.SUBTITULO', { nome: paciente.nome, transicao }) }}
+          </p>
+        </div>
+        <Button
+          :label="t('FOCOH_KANBAN.RISCO.TITULO')"
+          variant="outline"
+          size="sm"
+          icon="i-lucide-shield-alert"
+          @click="abrirAvaliacaoRisco"
+        />
       </header>
 
       <p v-if="!transicao" class="text-body-main text-n-slate-11">
