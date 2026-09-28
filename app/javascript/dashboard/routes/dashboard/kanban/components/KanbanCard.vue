@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter, useRoute } from 'vue-router';
 import KanbanCardFlag from './KanbanCardFlag.vue';
 
 /**
@@ -23,18 +24,31 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
 
 const laudosPendentes = computed(() => props.card.laudos_pendentes?.length ?? 0);
 
 const avaliacaoDeRiscoPendente = computed(
   () => props.card.nivel_pendencia === 'sem_avaliacao_risco'
 );
+
+// Clique abre a Avaliação de Progressão de Fase — a ação mais frequente a
+// partir do quadro. O vuedraggable distingue clique de arraste sozinho, não
+// precisa de guarda extra aqui.
+const abrirProgressao = () => {
+  router.push({
+    name: 'kanban_clinico_progressao_fase',
+    params: { accountId: route.params.accountId, pacienteId: props.card.id },
+  });
+};
 </script>
 
 <template>
   <article
-    class="flex flex-col w-full gap-2 p-3 border rounded-xl bg-n-solid-2 border-n-weak"
-    :class="isDraggable ? 'cursor-grab active:cursor-grabbing' : ''"
+    class="flex flex-col w-full gap-2 p-3 border rounded-xl bg-n-solid-2 border-n-weak hover:border-n-slate-6"
+    :class="isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'"
+    @click="abrirProgressao"
   >
     <div class="flex flex-col gap-0.5 min-w-0">
       <h3 class="truncate text-heading-3 text-n-slate-12">

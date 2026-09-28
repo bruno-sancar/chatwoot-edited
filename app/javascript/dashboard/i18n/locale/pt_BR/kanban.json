@@ -48,5 +48,45 @@
       "ENTENDI": "Entendi",
       "FALLBACK": "Avanço Bloqueado: A transição de fase exige a aprovação dos 3 Laudos Semanais (Clínico, Terapêutico e Disciplinar) e a ausência de riscos ativos. Verifique as pendências com a Coordenação Técnica."
     }
+  },
+  "FOCOH_KANBAN": {
+    "CAMPO": {
+      "SELECIONE": "Selecione",
+      "CONFIRMO_AVALIACAO": "Confirmo esta avaliação"
+    },
+    "BLOCO": {
+      "DECISAO": "Decisão do bloco",
+      "ENVIAR": "Enviar",
+      "ULTIMO_ENVIO": "último envio {data}",
+      "CAMPOS_OBRIGATORIOS_FALTANDO": "Falta preencher {n} campo obrigatório | Falta preencher {n} campos obrigatórios"
+    },
+    "PROGRESSAO": {
+      "TITULO": "Formulário de Avaliação de Progressão de Fase",
+      "SUBTITULO": "{nome} · {transicao}",
+      "BLOCO_CLINICO": "1 — Avaliação Clínica",
+      "BLOCO_TERAPEUTICO": "2 — Avaliação Terapêutica",
+      "BLOCO_DISCIPLINAR": "3 — Avaliação Disciplinar",
+      "BLOCO_RISCO": "4 — Risco e Sustentabilidade",
+      "BLOCO_REDE_APOIO": "4.A — Rede de Apoio e Continuidade",
+      "ENVIADO": "Bloco registrado. A trava de fase é reavaliada automaticamente.",
+      "SEM_TRANSICAO": "Este paciente está em Alta/Transição — não há próxima fase a avaliar."
+    },
+    "RISCO": {
+      "TITULO": "Escala de Avaliação de Risco de Suicídio",
+      "SUBTITULO": "{nome} — escore invertido: pontuação baixa = risco alto",
+      "ENVIAR": "Registrar avaliação",
+      "ENVIADO": "Avaliação registrada. A classificação de risco foi recalculada."
+    },
+    "HISTORICO": {
+      "TITULO": "Histórico do paciente",
+      "VAZIO": "Nenhum formulário enviado ainda.",
+      "RESULTADO": {
+        "apto": "Apto",
+        "nao_apto": "Não apto",
+        "baixo": "Baixo",
+        "moderado": "Moderado",
+        "alto": "Alto"
+      }
+    }
   }
 }

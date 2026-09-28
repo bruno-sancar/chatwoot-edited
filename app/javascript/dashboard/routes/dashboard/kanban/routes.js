@@ -1,6 +1,7 @@
 import { CONVERSATION_PERMISSIONS, ROLES } from 'dashboard/constants/permissions';
 import { frontendURL } from '../../../helper/URLHelper';
 import KanbanIndex from './pages/KanbanIndex.vue';
+import ProgressaoFaseForm from './pages/ProgressaoFaseForm.vue';
 
 /**
  * Kanban Clínico Rede Focoh.
@@ -18,6 +19,14 @@ export const routes = [
     path: frontendURL('accounts/:accountId/kanban'),
     name: 'kanban_clinico_index',
     component: KanbanIndex,
+    meta: {
+      permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
+    },
+  },
+  {
+    path: frontendURL('accounts/:accountId/kanban/pacientes/:pacienteId/progressao'),
+    name: 'kanban_clinico_progressao_fase',
+    component: ProgressaoFaseForm,
     meta: {
       permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
     },
