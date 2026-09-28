@@ -127,6 +127,7 @@
     "HISTORICO": {
       "TITULO": "Histórico do paciente",
       "VAZIO": "Nenhum formulário enviado ainda.",
+      "DATA_REFERENCIA": "referente a",
       "RESULTADO": {
         "apto": "Apto",
         "nao_apto": "Não apto",

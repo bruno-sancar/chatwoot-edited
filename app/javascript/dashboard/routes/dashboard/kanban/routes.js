@@ -4,6 +4,7 @@ import KanbanIndex from './pages/KanbanIndex.vue';
 import AdmissaoForm from './pages/AdmissaoForm.vue';
 import ProgressaoFaseForm from './pages/ProgressaoFaseForm.vue';
 import AvaliacaoRiscoForm from './pages/AvaliacaoRiscoForm.vue';
+import HistoricoPaciente from './pages/HistoricoPaciente.vue';
 
 /**
  * Kanban Clínico Rede Focoh.
@@ -45,6 +46,14 @@ export const routes = [
     path: frontendURL('accounts/:accountId/kanban/pacientes/:pacienteId/risco'),
     name: 'kanban_clinico_avaliacao_risco',
     component: AvaliacaoRiscoForm,
+    meta: {
+      permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
+    },
+  },
+  {
+    path: frontendURL('accounts/:accountId/kanban/pacientes/:pacienteId/historico'),
+    name: 'kanban_clinico_historico_paciente',
+    component: HistoricoPaciente,
     meta: {
       permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
     },

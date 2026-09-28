@@ -32,6 +32,13 @@ const abrirAvaliacaoRisco = () => {
   });
 };
 
+const abrirHistorico = () => {
+  router.push({
+    name: 'kanban_clinico_historico_paciente',
+    params: { accountId: route.params.accountId, pacienteId },
+  });
+};
+
 // fase_jornada -> transição avaliada para SAIR da fase atual. Não há
 // transição para quem já está em admissão (a saída dali é 72h + triagem,
 // não um Formulário de Progressão) nem para alta_transicao (já saiu).
@@ -163,13 +170,22 @@ onMounted(async () => {
             {{ t('FOCOH_KANBAN.PROGRESSAO.SUBTITULO', { nome: paciente.nome, transicao }) }}
           </p>
         </div>
-        <Button
-          :label="t('FOCOH_KANBAN.RISCO.TITULO')"
-          variant="outline"
-          size="sm"
-          icon="i-lucide-shield-alert"
-          @click="abrirAvaliacaoRisco"
-        />
+        <div class="flex items-center gap-2 shrink-0">
+          <Button
+            :label="t('FOCOH_KANBAN.HISTORICO.TITULO')"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-history"
+            @click="abrirHistorico"
+          />
+          <Button
+            :label="t('FOCOH_KANBAN.RISCO.TITULO')"
+            variant="outline"
+            size="sm"
+            icon="i-lucide-shield-alert"
+            @click="abrirAvaliacaoRisco"
+          />
+        </div>
       </header>
 
       <p v-if="!transicao" class="text-body-main text-n-slate-11">
