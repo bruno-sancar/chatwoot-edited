@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
@@ -24,6 +25,12 @@ import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient'
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
+
+// Chegando do botão "Criar registro" no painel da conversa (ver
+// FocohRegistroVinculado.vue) — o vínculo é gravado de volta na conversa
+// assim que o paciente é criado, sem o operador repetir o passo.
+const contatoParaVincular = route.query.vincularContatoId ?? null;
 
 const {
   definicoes,
@@ -46,15 +53,24 @@ const onEnviar = async ({ respostas }) => {
   try {
     await obterFocohToken();
 
-    const { error } = await supabase
+    const { data: pacienteCriado, error } = await supabase
       .from('pacientes')
       // `programa` fixo em jornada_superacao: a matriz de 11 eixos que
       // decide Detox vs. Jornada (Manual Técnico 2026) é triagem de
       // coordenação, fora do escopo desta fatia — só a Jornada tem quadro
       // hoje. Trocar depois é `update pacientes set programa = ...`.
-      .insert({ nome, programa: 'jornada_superacao', dados_cadastrais: dadosCadastrais });
+      .insert({ nome, programa: 'jornada_superacao', dados_cadastrais: dadosCadastrais })
+      .select('id')
+      .single();
 
     if (error) throw error;
+
+    if (contatoParaVincular) {
+      await store.dispatch('contacts/update', {
+        id: contatoParaVincular,
+        customAttributes: { focoh_patient_id: pacienteCriado.id, focoh_patient_nome: nome },
+      });
+    }
 
     useAlert(t('FOCOH_KANBAN.ADMISSAO.CRIADO'));
     router.push({

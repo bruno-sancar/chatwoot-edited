@@ -124,6 +124,15 @@
         "ARQUIVO_INVALIDO": "Arquivo inválido — esperado um JSON exportado por esta tela."
       }
     },
+    "VINCULO": {
+      "CRIAR_REGISTRO": "Criar registro",
+      "VINCULAR_REGISTRO": "Vincular registro",
+      "BUSCAR_PLACEHOLDER": "Buscar paciente pelo nome",
+      "CANCELAR": "Cancelar",
+      "DESVINCULAR": "Desvincular",
+      "VINCULADO": "Conversa vinculada ao registro.",
+      "DESVINCULADO": "Vínculo removido."
+    },
     "HISTORICO": {
       "TITULO": "Histórico do paciente",
       "VAZIO": "Nenhum formulário enviado ainda.",

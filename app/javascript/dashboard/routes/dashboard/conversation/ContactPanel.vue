@@ -21,6 +21,7 @@ import SharedFiles from './SharedFiles.vue';
 import Draggable from 'vuedraggable';
 import MacrosList from './Macros/List.vue';
 import ShopifyOrdersList from 'dashboard/components/widgets/conversation/ShopifyOrdersList.vue';
+import FocohRegistroVinculado from 'dashboard/routes/dashboard/kanban/components/FocohRegistroVinculado.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import LinearIssuesList from 'dashboard/components/widgets/conversation/linear/IssuesList.vue';
 import LinearSetupCTA from 'dashboard/components/widgets/conversation/linear/LinearSetupCTA.vue';
@@ -284,6 +285,21 @@ onMounted(() => {
               "
             >
               <ShopifyOrdersList :contact-id="contactId" />
+            </AccordionItem>
+          </div>
+          <div v-else-if="element.name === 'focoh_registro_vinculado'">
+            <AccordionItem
+              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.FOCOH_REGISTRO_VINCULADO')"
+              :is-open="isContactSidebarItemOpen('is_focoh_registro_open')"
+              compact
+              @toggle="
+                value => toggleSidebarUIState('is_focoh_registro_open', value)
+              "
+            >
+              <FocohRegistroVinculado
+                :contact-id="contactId"
+                :custom-attributes="contact.custom_attributes || {}"
+              />
             </AccordionItem>
           </div>
           <div v-else-if="element.name === 'contact_notes'">
