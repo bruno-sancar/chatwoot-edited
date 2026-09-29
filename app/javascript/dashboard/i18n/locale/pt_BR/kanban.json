@@ -78,6 +78,15 @@
       "ENVIADO": "Bloco registrado. A trava de fase é reavaliada automaticamente.",
       "SEM_TRANSICAO": "Este paciente está em Alta/Transição — não há próxima fase a avaliar."
     },
+    "LAUDO": {
+      "TITULO": "Laudo Semanal",
+      "SUBTITULO": "{nome} — semana vigente",
+      "BLOCO_CLINICO": "1 — Laudo Clínico (Médico Psiquiatra)",
+      "BLOCO_TERAPEUTICO": "2 — Laudo Terapêutico (Psicólogo)",
+      "BLOCO_DISCIPLINAR": "3 — Laudo Disciplinar (Coordenação Técnica)",
+      "ENVIADO": "Laudo registrado. Continue com os demais blocos.",
+      "VOLTAR_KANBAN": "Voltar ao Kanban"
+    },
     "RISCO": {
       "TITULO": "Escala de Avaliação de Risco de Suicídio",
       "SUBTITULO": "{nome} — escore invertido: pontuação baixa = risco alto",
