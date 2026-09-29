@@ -5,18 +5,8 @@ import AdmissaoForm from './pages/AdmissaoForm.vue';
 import ProgressaoFaseForm from './pages/ProgressaoFaseForm.vue';
 import AvaliacaoRiscoForm from './pages/AvaliacaoRiscoForm.vue';
 import HistoricoPaciente from './pages/HistoricoPaciente.vue';
+import LaudoSemanalForm from './pages/LaudoSemanalForm.vue';
 
-/**
- * Kanban Clínico Rede Focoh.
- *
- * `meta.permissions` é o único lugar onde o RBAC do Chatwoot é declarado: a
- * sidebar lê daqui (via `resolvePermissions` do provider) para decidir se
- * mostra o item de menu. Recepção e atendimento entram como agentes.
- *
- * O papel clínico é uma camada separada e independente: quem pode ver escore
- * de risco ou aprovar laudo é decidido pela RLS do Supabase a partir de
- * `app_metadata.role`, nunca por este arquivo.
- */
 export const routes = [
   {
     path: frontendURL('accounts/:accountId/kanban'),
@@ -54,6 +44,14 @@ export const routes = [
     path: frontendURL('accounts/:accountId/kanban/pacientes/:pacienteId/historico'),
     name: 'kanban_clinico_historico_paciente',
     component: HistoricoPaciente,
+    meta: {
+      permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
+    },
+  },
+  {
+    path: frontendURL('accounts/:accountId/kanban/pacientes/:pacienteId/laudo'),
+    name: 'kanban_clinico_laudo_semanal',
+    component: LaudoSemanalForm,
     meta: {
       permissions: [...ROLES, ...CONVERSATION_PERMISSIONS],
     },
