@@ -22,7 +22,7 @@
 # =============================================================================
 
 x-chatwoot-base: &chatwoot-base
-  image: ghcr.io/brunoss18/chatwoot-focoh:latest
+  image: ghcr.io/bruno-sancar/chatwoot-focoh:latest
   environment:
     NODE_ENV: production
     RAILS_ENV: production
