@@ -10,16 +10,6 @@ import FocohBlocoFormulario from '../components/FocohBlocoFormulario.vue';
 import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
-/**
- * Tela B do Mapa Objetivo: o formulário que governa a Jornada de Superação.
- * Estrutura fixa (blocos), conteúdo variável por transição — os blocos são
- * lidos do catálogo (`definicoes_formulario`), nunca hardcoded aqui.
- *
- * Cada bloco submete de forma independente (ver FocohBlocoFormulario) e o
- * trigger `respostas_formulario_10_sincronizar` grava em `laudos_semanais`
- * — a trava "Anexo Fases" já existente reage sozinha, sem este componente
- * saber nada sobre ela.
- */
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -39,9 +29,13 @@ const abrirHistorico = () => {
   });
 };
 
-// fase_jornada -> transição avaliada para SAIR da fase atual. Não há
-// transição para quem já está em admissão (a saída dali é 72h + triagem,
-// não um Formulário de Progressão) nem para alta_transicao (já saiu).
+const abrirLaudoSemanal = () => {
+  router.push({
+    name: 'kanban_clinico_laudo_semanal',
+    params: { accountId: route.params.accountId, pacienteId },
+  });
+};
+
 const TRANSICAO_POR_FASE = {
   fase1_autocritica: 'f1_f2',
   fase2_disciplina: 'f2_f3',
@@ -57,10 +51,6 @@ const BLOCO_TITULO = {
   rede_apoio_continuidade: 'FOCOH_KANBAN.PROGRESSAO.BLOCO_REDE_APOIO',
 };
 
-// Só os 3 primeiros blocos têm decisão Apto/Não apto — a sincronização com
-// laudos_semanais (migration de sincronização) só lê esses. Risco e Rede de
-// Apoio ficam registrados no histórico, sem virar um segundo portão de
-// trava (ver comentário PENDENTE DE VALIDAÇÃO CLÍNICA na migration).
 const BLOCOS_COM_DECISAO = new Set(['clinico', 'terapeutico', 'disciplinar']);
 
 const paciente = ref(null);
@@ -92,8 +82,6 @@ const ultimoEnvioPorBloco = computed(() => {
   historico.value
     .filter(r => r.formulario_tipo === 'progressao_fase' && r.etapa === transicao.value)
     .forEach(r => {
-      // histórico já vem ordenado enviado_em desc — a primeira ocorrência de
-      // cada bloco é a mais recente.
       if (!mapa[r.bloco]) mapa[r.bloco] = r;
     });
   return mapa;
@@ -131,7 +119,6 @@ const onEnviarBloco = async (bloco, { respostas, resultado }) => {
     bloco,
     dataReferencia: new Date().toISOString().slice(0, 10),
     respostas,
-    // FocohBlocoFormulario já garante null para bloco sem decisão.
     resultado,
   });
 
@@ -172,6 +159,13 @@ onMounted(async () => {
           </p>
         </div>
         <div class="flex items-center gap-2 shrink-0">
+          <Button
+            :label="t('FOCOH_KANBAN.LAUDO.TITULO')"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-file-text"
+            @click="abrirLaudoSemanal"
+          />
           <Button
             :label="t('FOCOH_KANBAN.HISTORICO.TITULO')"
             variant="ghost"
