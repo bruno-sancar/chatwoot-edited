@@ -1,27 +1,8 @@
-# =============================================================================
-# Build da imagem do fork (Chatwoot + Kanban Clínico Rede Focoh)
-# -----------------------------------------------------------------------------
-# Builda nos runners do GitHub (4 vCPU / 16 GB) e publica no GitHub Container
-# Registry. O Coolify passa a apenas PUXAR a imagem pronta, em vez de compilar.
-#
-# Por que: `bundle install -j 4` do Dockerfile do Chatwoot compila 4 gems
-# nativas em paralelo (o grpc sozinho chega a ~2 GB de RSS). Numa VPS pequena
-# isso estoura a memória no meio do build — e pior, competindo por RAM com os
-# serviços que já estão no ar.
-#
-# Ganho de segurança, de graça: aqui passamos SÓ 3 build args. O build do
-# Coolify injetava todas as variáveis como build arg, incluindo
-# SECRET_KEY_BASE, POSTGRES_PASSWORD e SMTP_PASSWORD — que acabariam no
-# histórico de camadas da imagem. Nada de segredo entra nesta imagem.
-# =============================================================================
-
 name: Build image
 
 on:
   push:
     branches: [deploy/coolify]
-    paths-ignore:
-      - '**.md'
   workflow_dispatch:
 
 concurrency:
@@ -42,10 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # A imagem do Chatwoot é grande (gems compiladas + node_modules + assets).
-      # O runner vem com ~14 GB livres; estes diretórios não servem para nada
-      # aqui e liberam vários GB.
-      - name: Liberar espaço em disco
+      - name: Liberar espaco em disco
         run: |
           sudo rm -rf /usr/local/lib/android /opt/ghc /usr/share/dotnet /usr/local/share/boost
           df -h /
@@ -70,18 +48,12 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
-          # O servidor de deploy é x86_64. Uma plataforma só corta o tempo pela metade.
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Um build arg só, e nenhum segredo. A configuração do Supabase é de
-          # runtime (window.chatwootConfig), então a imagem serve qualquer
-          # projeto Supabase sem rebuild — e o CI não precisa de secret algum.
           build-args: |
             RAILS_ENV=production
-          # Cache no próprio registry, não no cache do Actions: o limite de 10 GB
-          # por repositório do GHA não aguenta as camadas desta imagem.
           cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
 
