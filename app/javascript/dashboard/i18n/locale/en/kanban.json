@@ -46,7 +46,125 @@
     "BLOQUEIO": {
       "TITULO": "Advance blocked",
       "ENTENDI": "Got it",
-      "FALLBACK": "Avanço Bloqueado: A transição de fase exige a aprovação dos 3 Laudos Semanais (Clínico, Terapêutico e Disciplinar) e a ausência de riscos ativos. Verifique as pendências com a Coordenação Técnica."
+      "FALLBACK": "Advance Blocked: Phase transition requires approval of the 3 Weekly Reports (Clinical, Therapeutic and Disciplinary) and no active risks. Check pending items with the Technical Coordination."
+    }
+  },
+  "FOCOH_KANBAN": {
+    "ADMISSAO": {
+      "CRIAR_PACIENTE": "Create patient",
+      "TITULO": "Admission Form",
+      "SUBTITULO": "Identification and Support Network — creates the patient record",
+      "ABA_A": "A — Identification and Support Network",
+      "CRIADO": "Patient admitted. The card will appear in the Admission column."
+    },
+    "CAMPO": {
+      "SELECIONE": "Select",
+      "CONFIRMO_AVALIACAO": "I confirm this assessment"
+    },
+    "BLOCO": {
+      "DECISAO": "Block decision",
+      "ENVIAR": "Submit",
+      "ULTIMO_ENVIO": "last submission {data}",
+      "CAMPOS_OBRIGATORIOS_FALTANDO": "{n} required field missing | {n} required fields missing"
+    },
+    "PROGRESSAO": {
+      "TITULO": "Phase Progression Assessment Form",
+      "TITULO_CURTO": "Phase Progression",
+      "SUBTITULO": "{nome} · {transicao}",
+      "BLOCO_CLINICO": "1 — Clinical Assessment",
+      "BLOCO_TERAPEUTICO": "2 — Therapeutic Assessment",
+      "BLOCO_DISCIPLINAR": "3 — Disciplinary Assessment",
+      "BLOCO_RISCO": "4 — Risk and Sustainability",
+      "BLOCO_REDE_APOIO": "4.A — Support Network and Continuity",
+      "ENVIADO": "Block recorded. The phase lock is automatically re-evaluated.",
+      "SEM_TRANSICAO": "This patient is in Discharge/Transition — there is no next phase to assess."
+    },
+    "LAUDO": {
+      "TITULO": "Weekly Report",
+      "SUBTITULO": "{nome} — current week",
+      "BLOCO_CLINICO": "1 — Clinical Report (Psychiatrist)",
+      "BLOCO_TERAPEUTICO": "2 — Therapeutic Report (Psychologist)",
+      "BLOCO_DISCIPLINAR": "3 — Disciplinary Report (Technical Coordination)",
+      "ENVIADO": "Report recorded. Continue with the remaining blocks.",
+      "VOLTAR_KANBAN": "Back to Kanban"
+    },
+    "RISCO": {
+      "TITULO": "Suicide Risk Assessment Scale",
+      "TITULO_CURTO": "Risk Assessment",
+      "SUBTITULO": "{nome} — inverted score: low score = high risk",
+      "ENVIAR": "Register assessment",
+      "ENVIADO": "Assessment registered. The risk classification has been recalculated."
+    },
+    "PAINEL": {
+      "VOLTAR_KANBAN": "Kanban",
+      "LAUDOS_SEMANA": "This week's reports",
+      "BLOCO_CLINICO": "Clinical",
+      "BLOCO_TERAPEUTICO": "Therapeutic",
+      "BLOCO_DISCIPLINAR": "Disciplinary",
+      "PENDENTE": "Pending",
+      "HISTORICO_RECENTE": "Recent history",
+      "VER_HISTORICO_COMPLETO": "View full history"
+    },
+    "CONFIGURACOES": {
+      "TITULO": "Clinical Kanban",
+      "DESCRICAO": "Properties, users and data for the Clinical Kanban. Larger changes (new field type, new stage, new automation) must be coordinated with Sancar.",
+      "ABA_PROPRIEDADES": "Properties per stage",
+      "ABA_USUARIOS": "Users and permissions",
+      "ABA_IMPORTAR_EXPORTAR": "Import/Export",
+      "SEM_PERMISSAO_EDICAO": "You can view, but only technical coordination, management or a configuration editor can make changes.",
+      "ERRO_SALVAR": "Could not save. Please try again.",
+      "PROPRIEDADES": {
+        "NOVA": "New property",
+        "SALVAR": "Save",
+        "VAZIO": "No properties registered.",
+        "COLUNA_ROTULO": "Label",
+        "COLUNA_FORMULARIO": "Form",
+        "COLUNA_BLOCO": "Block",
+        "COLUNA_TIPO": "Type",
+        "COLUNA_OBRIGATORIO": "Required",
+        "COLUNA_ATIVO": "Active",
+        "PLACEHOLDER_ETAPA": "Stage (e.g. f1_f2)",
+        "PLACEHOLDER_BLOCO": "Block (e.g. clinico)",
+        "PLACEHOLDER_CHAVE": "field_key",
+        "PLACEHOLDER_ROTULO": "Displayed label"
+      },
+      "USUARIOS": {
+        "SELECIONE_AGENTE": "Select an agent",
+        "CONCEDER": "Grant access",
+        "VAZIO": "No configuration editors beyond coordination/management.",
+        "COLUNA_NOME": "Name",
+        "COLUNA_CONCEDIDO_EM": "Granted on"
+      },
+      "IMPORTAR_EXPORTAR": {
+        "EXPORTAR_TITULO": "Export catalogue",
+        "EXPORTAR_DESCRICAO": "Downloads all configured properties as JSON.",
+        "EXPORTAR_BOTAO": "Export",
+        "IMPORTAR_TITULO": "Import catalogue",
+        "IMPORTAR_DESCRICAO": "Loads a file for review. Actual import (writing to the database) is not yet available in this version — contact Sancar to migrate a large catalogue.",
+        "ARQUIVO_LIDO": "File read: {n} properties. Review in the console before applying manually.",
+        "ARQUIVO_INVALIDO": "Invalid file — expected a JSON exported by this screen."
+      }
+    },
+    "VINCULO": {
+      "CRIAR_REGISTRO": "Create record",
+      "VINCULAR_REGISTRO": "Link record",
+      "BUSCAR_PLACEHOLDER": "Search patient by name",
+      "CANCELAR": "Cancel",
+      "DESVINCULAR": "Unlink",
+      "VINCULADO": "Conversation linked to record.",
+      "DESVINCULADO": "Link removed."
+    },
+    "HISTORICO": {
+      "TITULO": "Patient history",
+      "VAZIO": "No forms submitted yet.",
+      "DATA_REFERENCIA": "for",
+      "RESULTADO": {
+        "apto": "Eligible",
+        "nao_apto": "Not eligible",
+        "baixo": "Low",
+        "moderado": "Moderate",
+        "alto": "High"
+      }
     }
   }
 }
