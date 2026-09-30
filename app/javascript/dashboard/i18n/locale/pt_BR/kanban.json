@@ -53,8 +53,14 @@
     "ADMISSAO": {
       "CRIAR_PACIENTE": "Criar paciente",
       "TITULO": "Ficha de Admissão",
+      "TITULO_CURTO": "Ficha Clínica",
       "SUBTITULO": "Identificação e Rede de Apoio — cria o registro do paciente",
       "ABA_A": "A — Identificação e Rede de Apoio",
+      "TITULO_COMPLEMENTAR": "Ficha Clínica Complementar",
+      "SUBTITULO_COMPLEMENTAR": "{nome} — histórico clínico e rede de apoio",
+      "BLOCO_HISTORICO_CLINICO": "1 — Histórico Clínico",
+      "BLOCO_REDE_APOIO": "2 — Rede de Apoio e Contatos",
+      "BLOCO_ENVIADO": "Bloco registrado na ficha.",
       "CRIADO": "Paciente admitido. O card já aparece na coluna de Admissão."
     },
     "CAMPO": {
