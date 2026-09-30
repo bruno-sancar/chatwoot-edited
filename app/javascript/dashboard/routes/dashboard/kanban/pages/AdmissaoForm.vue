@@ -122,7 +122,11 @@ const onEnviar = async ({ respostas }) => {
     if (contatoId) {
       await store.dispatch('contacts/update', {
         id: contatoId,
-        customAttributes: { focoh_patient_id: pacienteCriado.id, focoh_patient_nome: nome },
+        customAttributes: {
+          focoh_patient_id: pacienteCriado.id,
+          focoh_patient_nome: nome,
+          tipo_contato: 'paciente',
+        },
       });
     }
     useAlert(t('FOCOH_KANBAN.ADMISSAO.CRIADO'));
