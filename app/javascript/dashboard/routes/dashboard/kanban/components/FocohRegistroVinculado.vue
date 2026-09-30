@@ -4,21 +4,12 @@ import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
+import { onClickOutside } from '@vueuse/core';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import { getFocohSupabaseClient, obterFocohToken, isFocohConfigurado } from '../focohSupabaseClient';
 
-/**
- * Bloco "Registro vinculado" do sidebar da conversa — o vínculo conversa ↔
- * paciente do Mapa Objetivo ("aparece no painel lateral direito da
- * conversa... de mão dupla"). Guarda a referência em
- * `contact.custom_attributes.focoh_patient_id`: coluna jsonb que já existe
- * no Chatwoot, sem migração nova (ver plano — Decisão de arquitetura 3).
- *
- * O paciente em si nunca é lido daqui como fonte da verdade — só o nome,
- * pra exibição. O quadro clínico continua sendo a única leitura oficial.
- */
 const props = defineProps({
   contactId: { type: [Number, String], required: true },
   customAttributes: { type: Object, default: () => ({}) },
@@ -36,6 +27,13 @@ const modoVincular = ref(false);
 const buscaNome = ref('');
 const resultadosBusca = ref([]);
 const isBuscando = ref(false);
+const vincularContainer = ref(null);
+
+onClickOutside(vincularContainer, () => {
+  modoVincular.value = false;
+  buscaNome.value = '';
+  resultadosBusca.value = [];
+});
 
 const atualizarCustomAttribute = async valores => {
   await store.dispatch('contacts/update', {
@@ -52,10 +50,6 @@ const abrirRegistro = () => {
 };
 
 const criarRegistro = () => {
-  // A Ficha de Admissão lê estes query params e, ao criar o paciente,
-  // grava o vínculo de volta nesta conversa antes de navegar — ver
-  // AdmissaoForm.vue. É o botão "Criar registro" do Mapa Objetivo: abre em
-  // branco, sem preenchimento automático a partir da conversa.
   router.push({
     name: 'kanban_clinico_admissao',
     params: { accountId: route.params.accountId },
@@ -128,7 +122,7 @@ const desvincular = async () => {
       />
     </template>
 
-    <template v-else-if="modoVincular">
+    <div v-else-if="modoVincular" ref="vincularContainer" class="flex flex-col gap-2">
       <Input
         v-model="buscaNome"
         size="sm"
@@ -152,7 +146,7 @@ const desvincular = async () => {
         size="sm"
         @click="modoVincular = false"
       />
-    </template>
+    </div>
 
     <template v-else>
       <Button

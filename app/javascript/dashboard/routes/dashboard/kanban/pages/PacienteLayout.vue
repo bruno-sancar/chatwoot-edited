@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import { useFocohFormularios } from '../composables/useFocohFormularios';
@@ -9,12 +10,14 @@ import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient'
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
 const pacienteId = route.params.pacienteId;
 
 const paciente = ref(null);
 const ultimaAvaliacaoRisco = ref(null);
 const laudosSemana = ref([]);
 const isLoading = ref(true);
+const contatoChatwoot = ref(null);
 
 const { historico, carregarHistorico } = useFocohFormularios();
 
@@ -65,8 +68,6 @@ const riscoLabel = computed(() => {
   return r ? t(`FOCOH_KANBAN.HISTORICO.RESULTADO.${r}`) : null;
 });
 
-// laudos_semanais.tipo = 'clinico'|'terapeutico'|'disciplinar'
-// laudos_semanais.aprovado = boolean
 const laudosPorBloco = computed(() => {
   return ['clinico', 'terapeutico', 'disciplinar'].map(bloco => {
     const laudo = laudosSemana.value.find(l => l.tipo === bloco);
@@ -85,6 +86,17 @@ const navegar = routeName => {
 
 const voltarKanban = () => {
   router.push({ name: 'kanban_clinico_index', params: { accountId: route.params.accountId } });
+};
+
+const abrirConversa = () => {
+  if (!paciente.value?.chatwoot_conversation_id) return;
+  router.push({
+    name: 'inbox_conversation',
+    params: {
+      accountId: route.params.accountId,
+      conversation_id: paciente.value.chatwoot_conversation_id,
+    },
+  });
 };
 
 const corResultadoHistorico = resultado => {
@@ -124,6 +136,19 @@ onMounted(async () => {
   isLoading.value = false;
 
   carregarHistorico(pacienteId);
+
+  if (pac?.chatwoot_conversation_id) {
+    try {
+      const conversa = await store.dispatch('conversations/show', {
+        id: pac.chatwoot_conversation_id,
+      });
+      if (conversa?.meta?.sender) {
+        contatoChatwoot.value = conversa.meta.sender;
+      }
+    } catch {
+      // silent — link fica disponível mesmo sem metadados do contato
+    }
+  }
 });
 </script>
 
@@ -233,10 +258,38 @@ onMounted(async () => {
       <router-view />
     </main>
 
-    <!-- Right sidebar: laudos da semana + histórico recente -->
+    <!-- Right sidebar: contato Chatwoot + laudos da semana + histórico recente -->
     <aside
       class="w-72 shrink-0 flex flex-col border-l border-n-weak bg-n-solid-1 overflow-y-auto"
     >
+      <!-- Contato Chatwoot vinculado -->
+      <div
+        v-if="paciente?.chatwoot_conversation_id"
+        class="p-4 border-b border-n-weak"
+      >
+        <p class="text-label-small font-medium text-n-slate-10 uppercase tracking-wide mb-2">
+          {{ t('FOCOH_KANBAN.PAINEL.CONTATO_CHATWOOT') }}
+        </p>
+        <button
+          type="button"
+          class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-n-weak hover:bg-n-surface-2 transition-colors text-left"
+          @click="abrirConversa"
+        >
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="i-lucide-message-circle size-4 text-n-slate-11 shrink-0" />
+            <div class="min-w-0">
+              <p class="text-body-sm font-medium text-n-slate-12 truncate">
+                {{ contatoChatwoot?.name || t('FOCOH_KANBAN.PAINEL.VER_CONVERSA') }}
+              </p>
+              <p v-if="contatoChatwoot?.phone_number" class="text-label-small text-n-slate-10 truncate">
+                {{ contatoChatwoot.phone_number }}
+              </p>
+            </div>
+          </div>
+          <span class="i-lucide-arrow-up-right size-4 text-n-slate-10 shrink-0" />
+        </button>
+      </div>
+
       <!-- Laudos semanais status -->
       <div class="p-4 border-b border-n-weak">
         <p class="text-label-small font-medium text-n-slate-10 uppercase tracking-wide mb-3">

@@ -28,6 +28,38 @@ const valorMultipla = computed(() =>
   Array.isArray(props.modelValue) ? props.modelValue : []
 );
 
+const ehTelefone = computed(() =>
+  /telefon|celular/i.test(props.definicao.campo_chave ?? '')
+);
+
+const ehCPF = computed(() =>
+  /^cpf$/i.test(props.definicao.campo_chave ?? '')
+);
+
+const formatarTelefone = v => {
+  const d = String(v ?? '').replace(/\D/g, '').slice(0, 11);
+  if (d.length === 0) return '';
+  if (d.length <= 2) return `(${d}`;
+  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+};
+
+const formatarCPF = v => {
+  const d = String(v ?? '').replace(/\D/g, '').slice(0, 11);
+  if (d.length === 0) return '';
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
+  if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+};
+
+const handleTextoUpdate = v => {
+  if (ehTelefone.value) emit('update:modelValue', formatarTelefone(v));
+  else if (ehCPF.value) emit('update:modelValue', formatarCPF(v));
+  else emit('update:modelValue', v);
+};
+
 const alternarOpcaoMultipla = valor => {
   const atual = valorMultipla.value;
   const proximo = atual.includes(valor)
@@ -55,7 +87,9 @@ const atualizar = valor => emit('update:modelValue', valor);
       <Input
         v-if="definicao.tipo_campo === 'texto'"
         :model-value="modelValue"
-        @update:model-value="atualizar"
+        :input-type="ehTelefone ? 'tel' : 'text'"
+        :placeholder="ehCPF ? '000.000.000-00' : ehTelefone ? '(00) 00000-0000' : undefined"
+        @update:model-value="handleTextoUpdate"
       />
 
       <Input
