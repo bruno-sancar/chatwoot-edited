@@ -27,6 +27,7 @@ export const routes = [
   {
     path: frontendURL('accounts/:accountId/kanban/pacientes/:pacienteId'),
     component: PacienteLayout,
+    redirect: to => ({ name: 'kanban_clinico_ficha_admissao', params: to.params }),
     meta: PATIENT_META,
     children: [
       {
