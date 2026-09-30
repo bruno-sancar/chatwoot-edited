@@ -213,8 +213,8 @@ onMounted(async () => {
       </template>
     </aside>
 
-    <!-- Center: active page via router-view -->
-    <main class="flex-1 min-w-0 overflow-y-auto">
+    <!-- Center: active page via router-view; children manage their own scroll -->
+    <main class="flex-1 min-w-0 overflow-hidden">
       <router-view />
     </main>
 
