@@ -25,6 +25,7 @@ const FASE_LABEL = {
   fase3_empatia: 'F3',
   fase4_identidade: 'F4',
   alta_transicao: 'Alta',
+  transicao_amanda: 'AMANDA',
 };
 
 const FASE_COR = {
@@ -34,6 +35,7 @@ const FASE_COR = {
   fase3_empatia: 'bg-n-amber-3 text-n-amber-11',
   fase4_identidade: 'bg-n-violet-3 text-n-violet-11',
   alta_transicao: 'bg-n-teal-3 text-n-teal-11',
+  transicao_amanda: 'bg-n-slate-3 text-n-slate-11',
 };
 
 const RISCO_COR = {

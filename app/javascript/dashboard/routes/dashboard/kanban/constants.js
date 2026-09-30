@@ -13,7 +13,8 @@ export const FASES_JORNADA = [
   { id: 'fase2_disciplina', labelKey: 'FASE_2', dotClass: 'bg-n-amber-9' },
   { id: 'fase3_empatia', labelKey: 'FASE_3', dotClass: 'bg-n-amber-11' },
   { id: 'fase4_identidade', labelKey: 'FASE_4', dotClass: 'bg-n-violet-9' },
-  { id: 'alta_transicao', labelKey: 'ALTA_TRANSICAO', dotClass: 'bg-n-slate-9' },
+  { id: 'alta_transicao', labelKey: 'ALTA_HOSPITALAR', dotClass: 'bg-n-teal-11' },
+  { id: 'transicao_amanda', labelKey: 'TRANSICAO_AMANDA', dotClass: 'bg-n-slate-9' },
 ];
 
 export const FASES_DETOX = [
