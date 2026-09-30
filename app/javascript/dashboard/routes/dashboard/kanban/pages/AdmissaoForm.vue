@@ -89,6 +89,13 @@ const carregarContatoVinculado = async () => {
   }
 };
 
+const voltarKanban = () => {
+  router.push({
+    name: 'kanban_clinico_index',
+    params: { accountId: route.params.accountId },
+  });
+};
+
 const onEnviar = async ({ respostas }) => {
   const supabase = getFocohSupabaseClient();
   if (!supabase) return;
@@ -130,6 +137,14 @@ onMounted(() => {
 <template>
   <section class="flex flex-col w-full h-full overflow-hidden bg-n-surface-1">
     <header class="px-6 pt-6 pb-4 shrink-0 border-b border-n-strong">
+      <button
+        type="button"
+        class="flex items-center gap-1.5 mb-3 text-label-small text-n-slate-10 hover:text-n-slate-12 transition-colors"
+        @click="voltarKanban"
+      >
+        <span class="i-lucide-arrow-left w-3 h-3" />
+        {{ t('FOCOH_KANBAN.PAINEL.VOLTAR_KANBAN') }}
+      </button>
       <h1 class="text-heading-1 text-n-slate-12">
         {{ t('FOCOH_KANBAN.ADMISSAO.TITULO') }}
       </h1>
