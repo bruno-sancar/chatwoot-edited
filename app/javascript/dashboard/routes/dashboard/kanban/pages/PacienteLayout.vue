@@ -204,6 +204,14 @@ onMounted(async () => {
           <button
             type="button"
             class="flex items-center gap-2 px-3 py-2 rounded-lg text-body-sm text-n-slate-11 hover:bg-n-surface-2 transition-colors text-left w-full"
+            @click="navegar('kanban_clinico_ficha_admissao')"
+          >
+            <span class="i-lucide-clipboard-list w-4 h-4 shrink-0" />
+            {{ t('FOCOH_KANBAN.ADMISSAO.TITULO_CURTO') }}
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-body-sm text-n-slate-11 hover:bg-n-surface-2 transition-colors text-left w-full"
             @click="navegar('kanban_clinico_historico_paciente')"
           >
             <span class="i-lucide-history w-4 h-4 shrink-0" />
