@@ -69,6 +69,7 @@
     },
     "PROGRESSAO": {
       "TITULO": "Formulário de Avaliação de Progressão de Fase",
+      "TITULO_CURTO": "Progressão de Fase",
       "SUBTITULO": "{nome} · {transicao}",
       "BLOCO_CLINICO": "1 — Avaliação Clínica",
       "BLOCO_TERAPEUTICO": "2 — Avaliação Terapêutica",
@@ -89,6 +90,7 @@
     },
     "RISCO": {
       "TITULO": "Escala de Avaliação de Risco de Suicídio",
+      "TITULO_CURTO": "Avaliação de Risco",
       "SUBTITULO": "{nome} — escore invertido: pontuação baixa = risco alto",
       "ENVIAR": "Registrar avaliação",
       "ENVIADO": "Avaliação registrada. A classificação de risco foi recalculada."
@@ -132,6 +134,16 @@
         "ARQUIVO_LIDO": "Arquivo lido: {n} propriedades. Revise no console antes de aplicar manualmente.",
         "ARQUIVO_INVALIDO": "Arquivo inválido — esperado um JSON exportado por esta tela."
       }
+    },
+    "PAINEL": {
+      "VOLTAR_KANBAN": "Kanban",
+      "LAUDOS_SEMANA": "Laudos da semana",
+      "BLOCO_CLINICO": "Clínico",
+      "BLOCO_TERAPEUTICO": "Terapêutico",
+      "BLOCO_DISCIPLINAR": "Disciplinar",
+      "PENDENTE": "Pendente",
+      "HISTORICO_RECENTE": "Histórico recente",
+      "VER_HISTORICO_COMPLETO": "Ver histórico completo"
     },
     "VINCULO": {
       "CRIAR_REGISTRO": "Criar registro",
