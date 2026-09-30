@@ -73,13 +73,15 @@ const atualizar = valor => emit('update:modelValue', valor);
 
 <template>
   <div class="flex flex-col gap-1.5">
-    <label
-      v-if="definicao.tipo_campo !== 'checkbox'"
-      class="text-heading-3 text-n-slate-12"
-    >
-      {{ definicao.rotulo }}
-      <span v-if="definicao.obrigatorio" class="text-n-ruby-9">*</span>
-    </label>
+    <div v-if="definicao.tipo_campo !== 'checkbox'" class="flex flex-col gap-0.5">
+      <label class="text-heading-3 text-n-slate-12">
+        {{ definicao.rotulo }}
+        <span v-if="definicao.obrigatorio" class="text-n-ruby-9">*</span>
+      </label>
+      <p v-if="definicao.descricao" class="text-label-small text-n-slate-10">
+        {{ definicao.descricao }}
+      </p>
+    </div>
 
     <div
       :class="hasError ? 'rounded-lg ring-2 ring-n-ruby-8' : ''"
@@ -92,17 +94,22 @@ const atualizar = valor => emit('update:modelValue', valor);
         @update:model-value="handleTextoUpdate"
       />
 
+      <!-- type=number: abre teclado numérico em mobile (inputmode="decimal" aceita vírgula) -->
       <Input
         v-else-if="definicao.tipo_campo === 'numero'"
-        type="number"
         :model-value="modelValue"
+        input-type="number"
+        inputmode="decimal"
+        step="any"
+        :min="definicao.validacao?.min ?? undefined"
+        :max="definicao.validacao?.max ?? undefined"
         @update:model-value="atualizar"
       />
 
       <Input
         v-else-if="definicao.tipo_campo === 'data'"
-        type="date"
         :model-value="modelValue"
+        input-type="date"
         @update:model-value="atualizar"
       />
 
