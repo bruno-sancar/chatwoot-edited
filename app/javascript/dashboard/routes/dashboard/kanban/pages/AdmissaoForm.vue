@@ -4,6 +4,7 @@ import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
+import { onClickOutside } from '@vueuse/core';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import FocohBlocoFormulario from '../components/FocohBlocoFormulario.vue';
@@ -28,6 +29,11 @@ const textoBusca = ref('');
 const resultadosBusca = ref([]);
 const buscando = ref(false);
 const mostrarDropdown = ref(false);
+const buscaContainer = ref(null);
+
+onClickOutside(buscaContainer, () => {
+  mostrarDropdown.value = false;
+});
 
 const valoresIniciaisDoContato = computed(() => {
   if (!contatoSelecionado.value) return {};
@@ -217,7 +223,7 @@ onMounted(() => {
             </button>
           </div>
 
-          <div v-else-if="!contatoParaVincular" class="relative">
+          <div v-else-if="!contatoParaVincular" ref="buscaContainer" class="relative">
             <Input
               v-model="textoBusca"
               :placeholder="t('FOCOH_KANBAN.VINCULO.BUSCAR_PLACEHOLDER')"
