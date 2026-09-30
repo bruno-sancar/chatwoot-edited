@@ -53,8 +53,14 @@
     "ADMISSAO": {
       "CRIAR_PACIENTE": "Create patient",
       "TITULO": "Admission Form",
+      "TITULO_CURTO": "Clinical File",
       "SUBTITULO": "Identification and Support Network — creates the patient record",
       "ABA_A": "A — Identification and Support Network",
+      "TITULO_COMPLEMENTAR": "Complementary Clinical File",
+      "SUBTITULO_COMPLEMENTAR": "{nome} — clinical history and support network",
+      "BLOCO_HISTORICO_CLINICO": "1 — Clinical History",
+      "BLOCO_REDE_APOIO": "2 — Support Network and Contacts",
+      "BLOCO_ENVIADO": "Block recorded in the clinical file.",
       "CRIADO": "Patient admitted. The card will appear in the Admission column."
     },
     "CAMPO": {
