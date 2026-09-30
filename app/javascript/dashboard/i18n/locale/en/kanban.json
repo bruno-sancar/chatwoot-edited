@@ -6,54 +6,18 @@
     "PROGRAMA_JORNADA": "Jornada de Superação",
     "PROGRAMA_DETOX": "Detox (30 days)",
     "FASES": {
-      "ADMISSAO_TRIAGEM": {
-        "NOME": "Admission and Initial Triage",
-        "TEMPO": "up to 72h"
-      },
-      "FASE_1": {
-        "NOME": "Phase 1 – Self-awareness and Acceptance",
-        "TEMPO": "3 to 6 weeks"
-      },
-      "FASE_2": {
-        "NOME": "Phase 2 – Discipline and Life Project",
-        "TEMPO": "4 to 8 weeks"
-      },
-      "FASE_3": {
-        "NOME": "Phase 3 – Empathy and Self-care",
-        "TEMPO": "4 to 8 weeks"
-      },
-      "FASE_4": {
-        "NOME": "Phase 4 – Identity, Sustainment and Pre-discharge",
-        "TEMPO": "2 to 4 weeks"
-      },
-      "ALTA_TRANSICAO": {
-        "NOME": "Hospital Discharge and AMANDA Transition",
-        "TEMPO": "no set duration"
-      },
-      "DETOX_ADMISSAO": {
-        "NOME": "Admission",
-        "TEMPO": "up to 24h"
-      },
-      "DETOX_SEMANA_1": {
-        "NOME": "Week 1",
-        "TEMPO": "days 1–7"
-      },
-      "DETOX_SEMANA_2": {
-        "NOME": "Week 2",
-        "TEMPO": "days 8–14"
-      },
-      "DETOX_SEMANA_3": {
-        "NOME": "Week 3",
-        "TEMPO": "days 15–21"
-      },
-      "DETOX_SEMANA_4": {
-        "NOME": "Week 4",
-        "TEMPO": "days 22–30"
-      },
-      "DETOX_ALTA_POS_ALTA": {
-        "NOME": "Discharge and Post-discharge",
-        "TEMPO": "90-day transition"
-      }
+      "ADMISSAO_TRIAGEM": { "NOME": "Admission and Initial Triage", "TEMPO": "up to 72h" },
+      "FASE_1": { "NOME": "Phase 1 – Self-awareness and Acceptance", "TEMPO": "3 to 6 weeks" },
+      "FASE_2": { "NOME": "Phase 2 – Discipline and Life Project", "TEMPO": "4 to 8 weeks" },
+      "FASE_3": { "NOME": "Phase 3 – Empathy and Self-care", "TEMPO": "4 to 8 weeks" },
+      "FASE_4": { "NOME": "Phase 4 – Identity, Sustainment and Pre-discharge", "TEMPO": "2 to 4 weeks" },
+      "ALTA_TRANSICAO": { "NOME": "Hospital Discharge and AMANDA Transition", "TEMPO": "no set duration" },
+      "DETOX_ADMISSAO": { "NOME": "Admission", "TEMPO": "up to 24h" },
+      "DETOX_SEMANA_1": { "NOME": "Week 1", "TEMPO": "days 1-7" },
+      "DETOX_SEMANA_2": { "NOME": "Week 2", "TEMPO": "days 8-14" },
+      "DETOX_SEMANA_3": { "NOME": "Week 3", "TEMPO": "days 15-21" },
+      "DETOX_SEMANA_4": { "NOME": "Week 4", "TEMPO": "days 22-30" },
+      "DETOX_ALTA_POS_ALTA": { "NOME": "Discharge and Post-discharge", "TEMPO": "90-day transition" }
     },
     "CARD": {
       "DIAS_INTERNADO": "{n} day admitted | {n} days admitted",
@@ -82,6 +46,7 @@
       "TITULO_CURTO": "Clinical File",
       "SUBTITULO": "Identification and Support Network — creates the patient record",
       "ABA_A": "A — Identification and Support Network",
+      "PROGRAMA": "Program",
       "TITULO_COMPLEMENTAR": "Complementary Clinical File",
       "SUBTITULO_COMPLEMENTAR": "{nome} — clinical history and support network",
       "BLOCO_HISTORICO_CLINICO": "1 — Clinical History",
@@ -91,7 +56,8 @@
     },
     "CAMPO": {
       "SELECIONE": "Select",
-      "CONFIRMO_AVALIACAO": "I confirm this assessment"
+      "CONFIRMO_AVALIACAO": "I confirm this assessment",
+      "OBRIGATORIO": "Required field"
     },
     "BLOCO": {
       "DECISAO": "Block decision",

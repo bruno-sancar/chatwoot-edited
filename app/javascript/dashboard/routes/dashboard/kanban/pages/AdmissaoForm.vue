@@ -9,6 +9,7 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import FocohBlocoFormulario from '../components/FocohBlocoFormulario.vue';
 import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
+import { PROGRAMAS } from '../constants';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -20,16 +21,14 @@ const contatoParaVincular = route.query.vincularContatoId ?? null;
 const { definicoes, isLoadingDefinicoes, carregarDefinicoes } = useFocohFormularios();
 const isSubmitting = ref(false);
 
-// Contato Chatwoot selecionado (para pré-preenchimento)
-const contatoSelecionado = ref(null);
+const programaSelecionado = ref('jornada_superacao');
 
-// Busca de contato (FOCO-71 — quando não vem da sidebar)
+const contatoSelecionado = ref(null);
 const textoBusca = ref('');
 const resultadosBusca = ref([]);
 const buscando = ref(false);
 const mostrarDropdown = ref(false);
 
-// Mapeia contato Chatwoot → campo_chave do formulário (best-effort)
 const valoresIniciaisDoContato = computed(() => {
   if (!contatoSelecionado.value) return {};
   const c = contatoSelecionado.value;
@@ -44,7 +43,6 @@ const valoresIniciaisDoContato = computed(() => {
   return mapa;
 });
 
-// Busca contatos Chatwoot ao digitar (FOCO-71)
 let buscaTimer = null;
 watch(textoBusca, q => {
   clearTimeout(buscaTimer);
@@ -61,7 +59,7 @@ watch(textoBusca, q => {
         .slice(0, 8);
       mostrarDropdown.value = resultadosBusca.value.length > 0;
     } catch {
-      // silent — search is optional
+      // silent
     } finally {
       buscando.value = false;
     }
@@ -79,7 +77,6 @@ const limparContato = () => {
   contatoSelecionado.value = null;
 };
 
-// FOCO-70 — pré-carrega contato quando vindo da sidebar com vincularContatoId
 const carregarContatoVinculado = async () => {
   if (!contatoParaVincular) return;
   try {
@@ -88,7 +85,7 @@ const carregarContatoVinculado = async () => {
     });
     if (contato) contatoSelecionado.value = contato;
   } catch {
-    // silent — form still works without pre-fill
+    // silent
   }
 };
 
@@ -104,7 +101,7 @@ const onEnviar = async ({ respostas }) => {
     await obterFocohToken();
     const { data: pacienteCriado, error } = await supabase
       .from('pacientes')
-      .insert({ nome, programa: 'jornada_superacao', dados_cadastrais: dadosCadastrais })
+      .insert({ nome, programa: programaSelecionado.value, dados_cadastrais: dadosCadastrais })
       .select('id')
       .single();
     if (error) throw error;
@@ -151,13 +148,35 @@ onMounted(() => {
     <div v-else class="flex-1 overflow-y-auto px-6 py-5">
       <div class="max-w-2xl mx-auto flex flex-col gap-6">
 
+        <!-- Seletor de programa -->
+        <div class="flex flex-col gap-2">
+          <p class="text-heading-3 text-n-slate-12">
+            {{ t('FOCOH_KANBAN.ADMISSAO.PROGRAMA') }}
+          </p>
+          <div class="flex gap-1 p-1 rounded-lg bg-n-surface-2 w-fit">
+            <button
+              v-for="prog in PROGRAMAS"
+              :key="prog.id"
+              type="button"
+              class="px-3 py-1.5 rounded-md text-body-sm font-medium transition-colors"
+              :class="
+                programaSelecionado === prog.id
+                  ? 'bg-n-solid-2 text-n-slate-12 shadow-sm'
+                  : 'text-n-slate-11 hover:text-n-slate-12'
+              "
+              @click="programaSelecionado = prog.id"
+            >
+              {{ t(`KANBAN.${prog.labelKey}`) }}
+            </button>
+          </div>
+        </div>
+
         <!-- Seleção/pré-preenchimento de contato Chatwoot -->
         <div class="flex flex-col gap-3 p-4 rounded-xl border border-n-strong bg-n-surface-2">
           <h2 class="text-heading-3 text-n-slate-12">
             {{ t('FOCOH_KANBAN.ADMISSAO.TITULO_CURTO') }}
           </h2>
 
-          <!-- Contato já selecionado (ou vindo da sidebar) -->
           <div
             v-if="contatoSelecionado"
             class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg border border-n-strong bg-n-surface-1"
@@ -183,7 +202,6 @@ onMounted(() => {
             </button>
           </div>
 
-          <!-- Campo de busca (quando não vem da sidebar) -->
           <div v-else-if="!contatoParaVincular" class="relative">
             <Input
               v-model="textoBusca"

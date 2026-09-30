@@ -37,6 +37,9 @@ const camposFaltando = computed(() =>
     return valor === undefined || valor === null || valor === '';
   })
 );
+
+const camposComErro = computed(() => new Set(camposFaltando.value.map(d => d.campo_chave)));
+
 const podeEnviar = computed(
   () => camposFaltando.value.length === 0 && (!props.comDecisao || decisao.value)
 );
@@ -82,6 +85,7 @@ const enviar = () => {
           :key="def.campo_chave"
           :definicao="def"
           :model-value="valores[def.campo_chave]"
+          :has-error="tentouEnviar && camposComErro.has(def.campo_chave)"
           @update:model-value="v => (valores[def.campo_chave] = v)"
         />
       </div>

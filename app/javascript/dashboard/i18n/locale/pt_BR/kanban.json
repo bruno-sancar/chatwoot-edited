@@ -6,54 +6,18 @@
     "PROGRAMA_JORNADA": "Jornada de Superação",
     "PROGRAMA_DETOX": "Detox (30 dias)",
     "FASES": {
-      "ADMISSAO_TRIAGEM": {
-        "NOME": "Admissão e Triagem Inicial",
-        "TEMPO": "até 72h"
-      },
-      "FASE_1": {
-        "NOME": "Fase 1 – Autocrítica e Aceitação",
-        "TEMPO": "3 a 6 semanas"
-      },
-      "FASE_2": {
-        "NOME": "Fase 2 – Disciplina e Projeto de Vida",
-        "TEMPO": "4 a 8 semanas"
-      },
-      "FASE_3": {
-        "NOME": "Fase 3 – Empatia e Autocuidado",
-        "TEMPO": "4 a 8 semanas"
-      },
-      "FASE_4": {
-        "NOME": "Fase 4 – Identidade, Sustentação e Pré-Alta",
-        "TEMPO": "2 a 4 semanas"
-      },
-      "ALTA_TRANSICAO": {
-        "NOME": "Alta Hospitalar e Transição AMANDA",
-        "TEMPO": "sem prazo definido"
-      },
-      "DETOX_ADMISSAO": {
-        "NOME": "Admissão",
-        "TEMPO": "até 24h"
-      },
-      "DETOX_SEMANA_1": {
-        "NOME": "Semana 1",
-        "TEMPO": "dias 1–7"
-      },
-      "DETOX_SEMANA_2": {
-        "NOME": "Semana 2",
-        "TEMPO": "dias 8–14"
-      },
-      "DETOX_SEMANA_3": {
-        "NOME": "Semana 3",
-        "TEMPO": "dias 15–21"
-      },
-      "DETOX_SEMANA_4": {
-        "NOME": "Semana 4",
-        "TEMPO": "dias 22–30"
-      },
-      "DETOX_ALTA_POS_ALTA": {
-        "NOME": "Alta e Pós-Alta",
-        "TEMPO": "transição 90 dias"
-      }
+      "ADMISSAO_TRIAGEM": { "NOME": "Admissão e Triagem Inicial", "TEMPO": "até 72h" },
+      "FASE_1": { "NOME": "Fase 1 – Autocrítica e Aceitação", "TEMPO": "3 a 6 semanas" },
+      "FASE_2": { "NOME": "Fase 2 – Disciplina e Projeto de Vida", "TEMPO": "4 a 8 semanas" },
+      "FASE_3": { "NOME": "Fase 3 – Empatia e Autocuidado", "TEMPO": "4 a 8 semanas" },
+      "FASE_4": { "NOME": "Fase 4 – Identidade, Sustentação e Pré-Alta", "TEMPO": "2 a 4 semanas" },
+      "ALTA_TRANSICAO": { "NOME": "Alta Hospitalar e Transição AMANDA", "TEMPO": "sem prazo definido" },
+      "DETOX_ADMISSAO": { "NOME": "Admissão", "TEMPO": "até 24h" },
+      "DETOX_SEMANA_1": { "NOME": "Semana 1", "TEMPO": "dias 1-7" },
+      "DETOX_SEMANA_2": { "NOME": "Semana 2", "TEMPO": "dias 8-14" },
+      "DETOX_SEMANA_3": { "NOME": "Semana 3", "TEMPO": "dias 15-21" },
+      "DETOX_SEMANA_4": { "NOME": "Semana 4", "TEMPO": "dias 22-30" },
+      "DETOX_ALTA_POS_ALTA": { "NOME": "Alta e Pós-Alta", "TEMPO": "transição 90 dias" }
     },
     "CARD": {
       "DIAS_INTERNADO": "{n} dia de internação | {n} dias de internação",
@@ -82,6 +46,7 @@
       "TITULO_CURTO": "Ficha Clínica",
       "SUBTITULO": "Identificação e Rede de Apoio — cria o registro do paciente",
       "ABA_A": "A — Identificação e Rede de Apoio",
+      "PROGRAMA": "Programa",
       "TITULO_COMPLEMENTAR": "Ficha Clínica Complementar",
       "SUBTITULO_COMPLEMENTAR": "{nome} — histórico clínico e rede de apoio",
       "BLOCO_HISTORICO_CLINICO": "1 — Histórico Clínico",
@@ -91,7 +56,8 @@
     },
     "CAMPO": {
       "SELECIONE": "Selecione",
-      "CONFIRMO_AVALIACAO": "Confirmo esta avaliação"
+      "CONFIRMO_AVALIACAO": "Confirmo esta avaliação",
+      "OBRIGATORIO": "Campo obrigatório"
     },
     "BLOCO": {
       "DECISAO": "Decisão do bloco",
@@ -126,6 +92,16 @@
       "SUBTITULO": "{nome} — escore invertido: pontuação baixa = risco alto",
       "ENVIAR": "Registrar avaliação",
       "ENVIADO": "Avaliação registrada. A classificação de risco foi recalculada."
+    },
+    "PAINEL": {
+      "VOLTAR_KANBAN": "Kanban",
+      "LAUDOS_SEMANA": "Laudos da semana",
+      "BLOCO_CLINICO": "Clínico",
+      "BLOCO_TERAPEUTICO": "Terapêutico",
+      "BLOCO_DISCIPLINAR": "Disciplinar",
+      "PENDENTE": "Pendente",
+      "HISTORICO_RECENTE": "Histórico recente",
+      "VER_HISTORICO_COMPLETO": "Ver histórico completo"
     },
     "CONFIGURACOES": {
       "TITULO": "Kanban Clínico",
@@ -166,16 +142,6 @@
         "ARQUIVO_LIDO": "Arquivo lido: {n} propriedades. Revise no console antes de aplicar manualmente.",
         "ARQUIVO_INVALIDO": "Arquivo inválido — esperado um JSON exportado por esta tela."
       }
-    },
-    "PAINEL": {
-      "VOLTAR_KANBAN": "Kanban",
-      "LAUDOS_SEMANA": "Laudos da semana",
-      "BLOCO_CLINICO": "Clínico",
-      "BLOCO_TERAPEUTICO": "Terapêutico",
-      "BLOCO_DISCIPLINAR": "Disciplinar",
-      "PENDENTE": "Pendente",
-      "HISTORICO_RECENTE": "Histórico recente",
-      "VER_HISTORICO_COMPLETO": "Ver histórico completo"
     },
     "VINCULO": {
       "CRIAR_REGISTRO": "Criar registro",

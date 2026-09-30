@@ -7,21 +7,10 @@ import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 
-/**
- * Renderiza UM campo, a partir de uma linha de `definicoes_formulario`. É o
- * único lugar do sistema que sabe traduzir `tipo_campo` para um input real —
- * toda tela nova (Admissão, Progressão, o que vier) ganha o tipo automático
- * sem reescrever nada aqui, só adicionando linha no catálogo.
- *
- * Segue o padrão de tipo-por-v-if de `dashboard/components/CustomAttribute.vue`
- * (o componente equivalente de Atributos Personalizados), com os inputs do
- * design system components-next em vez dos inputs nativos que aquele usa —
- * este campo é sempre editável (não tem o modo exibição/edição do atributo
- * de contato).
- */
 const props = defineProps({
   definicao: { type: Object, required: true },
   modelValue: { type: [String, Number, Boolean, Array], default: null },
+  hasError: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -60,76 +49,78 @@ const atualizar = valor => emit('update:modelValue', valor);
       <span v-if="definicao.obrigatorio" class="text-n-ruby-9">*</span>
     </label>
 
-    <Input
-      v-if="definicao.tipo_campo === 'texto'"
-      :model-value="modelValue"
-      @update:model-value="atualizar"
-    />
+    <div
+      :class="hasError ? 'rounded-lg ring-2 ring-n-ruby-8' : ''"
+    >
+      <Input
+        v-if="definicao.tipo_campo === 'texto'"
+        :model-value="modelValue"
+        @update:model-value="atualizar"
+      />
 
-    <Input
-      v-else-if="definicao.tipo_campo === 'numero'"
-      type="number"
-      :model-value="modelValue"
-      @update:model-value="atualizar"
-    />
+      <Input
+        v-else-if="definicao.tipo_campo === 'numero'"
+        type="number"
+        :model-value="modelValue"
+        @update:model-value="atualizar"
+      />
 
-    <Input
-      v-else-if="definicao.tipo_campo === 'data'"
-      type="date"
-      :model-value="modelValue"
-      @update:model-value="atualizar"
-    />
+      <Input
+        v-else-if="definicao.tipo_campo === 'data'"
+        type="date"
+        :model-value="modelValue"
+        @update:model-value="atualizar"
+      />
 
-    <TextArea
-      v-else-if="definicao.tipo_campo === 'texto_longo'"
-      :model-value="modelValue"
-      auto-height
-      @update:model-value="atualizar"
-    />
+      <TextArea
+        v-else-if="definicao.tipo_campo === 'texto_longo'"
+        :model-value="modelValue"
+        auto-height
+        @update:model-value="atualizar"
+      />
 
-    <Select
-      v-else-if="definicao.tipo_campo === 'selecao'"
-      :model-value="modelValue"
-      :options="opcoesSelect"
-      :placeholder="t('FOCOH_KANBAN.CAMPO.SELECIONE')"
-      @update:model-value="atualizar"
-    />
+      <Select
+        v-else-if="definicao.tipo_campo === 'selecao'"
+        :model-value="modelValue"
+        :options="opcoesSelect"
+        :placeholder="t('FOCOH_KANBAN.CAMPO.SELECIONE')"
+        @update:model-value="atualizar"
+      />
 
-    <div v-else-if="definicao.tipo_campo === 'multipla'" class="flex flex-col gap-2">
+      <div v-else-if="definicao.tipo_campo === 'multipla'" class="flex flex-col gap-2">
+        <label
+          v-for="opcao in opcoesSelect"
+          :key="opcao.value"
+          class="flex items-center gap-2 text-body-main text-n-slate-12"
+        >
+          <Checkbox
+            :model-value="valorMultipla.includes(opcao.value)"
+            @update:model-value="() => alternarOpcaoMultipla(opcao.value)"
+          />
+          {{ opcao.label }}
+        </label>
+      </div>
+
       <label
-        v-for="opcao in opcoesSelect"
-        :key="opcao.value"
+        v-else-if="definicao.tipo_campo === 'checkbox'"
         class="flex items-center gap-2 text-body-main text-n-slate-12"
       >
-        <Checkbox
-          :model-value="valorMultipla.includes(opcao.value)"
-          @update:model-value="() => alternarOpcaoMultipla(opcao.value)"
-        />
-        {{ opcao.label }}
+        <Checkbox :model-value="Boolean(modelValue)" @update:model-value="atualizar" />
+        {{ definicao.rotulo }}
+        <span v-if="definicao.obrigatorio" class="text-n-ruby-9">*</span>
+      </label>
+
+      <label
+        v-else-if="definicao.tipo_campo === 'assinatura'"
+        class="flex items-center gap-2 text-body-main text-n-slate-12"
+      >
+        <Checkbox :model-value="Boolean(modelValue)" @update:model-value="atualizar" />
+        {{ t('FOCOH_KANBAN.CAMPO.CONFIRMO_AVALIACAO') }}
       </label>
     </div>
 
-    <label
-      v-else-if="definicao.tipo_campo === 'checkbox'"
-      class="flex items-center gap-2 text-body-main text-n-slate-12"
-    >
-      <Checkbox :model-value="Boolean(modelValue)" @update:model-value="atualizar" />
-      {{ definicao.rotulo }}
-      <span v-if="definicao.obrigatorio" class="text-n-ruby-9">*</span>
-    </label>
-
-    <!--
-      Assinatura eletrônica é decisão de produto em aberto (ver plano —
-      assinar no sistema vs. anexar PDF). Nenhum campo do catálogo atual usa
-      este tipo; fica um confirm simples para não travar a tela se alguém
-      cadastrar um campo assim antes dessa decisão sair.
-    -->
-    <label
-      v-else-if="definicao.tipo_campo === 'assinatura'"
-      class="flex items-center gap-2 text-body-main text-n-slate-12"
-    >
-      <Checkbox :model-value="Boolean(modelValue)" @update:model-value="atualizar" />
-      {{ t('FOCOH_KANBAN.CAMPO.CONFIRMO_AVALIACAO') }}
-    </label>
+    <p v-if="hasError" class="text-label-small text-n-ruby-11">
+      {{ t('FOCOH_KANBAN.CAMPO.OBRIGATORIO') }}
+    </p>
   </div>
 </template>

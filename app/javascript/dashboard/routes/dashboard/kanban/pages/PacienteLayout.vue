@@ -63,11 +63,16 @@ const riscoLabel = computed(() => {
   return r ? t(`FOCOH_KANBAN.HISTORICO.RESULTADO.${r}`) : null;
 });
 
+// laudos_semanais.tipo = 'clinico'|'terapeutico'|'disciplinar'
+// laudos_semanais.aprovado = boolean
 const laudosPorBloco = computed(() => {
-  return ['clinico', 'terapeutico', 'disciplinar'].map(bloco => ({
-    bloco,
-    resultado: laudosSemana.value.find(l => l.bloco === bloco)?.resultado ?? null,
-  }));
+  return ['clinico', 'terapeutico', 'disciplinar'].map(bloco => {
+    const laudo = laudosSemana.value.find(l => l.tipo === bloco);
+    return {
+      bloco,
+      resultado: laudo ? (laudo.aprovado ? 'apto' : 'nao_apto') : null,
+    };
+  });
 });
 
 const historicoRecente = computed(() => historico.value.slice(0, 6));
@@ -106,7 +111,7 @@ onMounted(async () => {
       .limit(1),
     supabase
       .from('laudos_semanais')
-      .select('bloco, resultado')
+      .select('tipo, aprovado')
       .eq('paciente_id', pacienteId)
       .eq('semana_ref', getMondayThisWeek()),
   ]);
