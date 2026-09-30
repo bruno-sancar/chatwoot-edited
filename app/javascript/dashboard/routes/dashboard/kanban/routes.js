@@ -7,6 +7,7 @@ import ProgressaoFaseForm from './pages/ProgressaoFaseForm.vue';
 import AvaliacaoRiscoForm from './pages/AvaliacaoRiscoForm.vue';
 import HistoricoPaciente from './pages/HistoricoPaciente.vue';
 import LaudoSemanalForm from './pages/LaudoSemanalForm.vue';
+import FichaAdmissaoForm from './pages/FichaAdmissaoForm.vue';
 
 const PATIENT_META = { permissions: [...ROLES, ...CONVERSATION_PERMISSIONS] };
 
@@ -50,6 +51,12 @@ export const routes = [
         path: 'laudo',
         name: 'kanban_clinico_laudo_semanal',
         component: LaudoSemanalForm,
+        meta: PATIENT_META,
+      },
+      {
+        path: 'ficha',
+        name: 'kanban_clinico_ficha_admissao',
+        component: FichaAdmissaoForm,
         meta: PATIENT_META,
       },
     ],
