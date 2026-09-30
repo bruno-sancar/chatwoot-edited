@@ -53,8 +53,14 @@
     "ADMISSAO": {
       "CRIAR_PACIENTE": "Criar paciente",
       "TITULO": "Ficha de Admissão",
+      "TITULO_CURTO": "Ficha Clínica",
       "SUBTITULO": "Identificação e Rede de Apoio — cria o registro do paciente",
       "ABA_A": "A — Identificação e Rede de Apoio",
+      "TITULO_COMPLEMENTAR": "Ficha Clínica Complementar",
+      "SUBTITULO_COMPLEMENTAR": "{nome} — histórico clínico e rede de apoio",
+      "BLOCO_HISTORICO_CLINICO": "1 — Histórico Clínico",
+      "BLOCO_REDE_APOIO": "2 — Rede de Apoio e Contatos",
+      "BLOCO_ENVIADO": "Bloco registrado na ficha.",
       "CRIADO": "Paciente admitido. O card já aparece na coluna de Admissão."
     },
     "CAMPO": {
@@ -69,6 +75,7 @@
     },
     "PROGRESSAO": {
       "TITULO": "Formulário de Avaliação de Progressão de Fase",
+      "TITULO_CURTO": "Progressão de Fase",
       "SUBTITULO": "{nome} · {transicao}",
       "BLOCO_CLINICO": "1 — Avaliação Clínica",
       "BLOCO_TERAPEUTICO": "2 — Avaliação Terapêutica",
@@ -78,8 +85,18 @@
       "ENVIADO": "Bloco registrado. A trava de fase é reavaliada automaticamente.",
       "SEM_TRANSICAO": "Este paciente está em Alta/Transição — não há próxima fase a avaliar."
     },
+    "LAUDO": {
+      "TITULO": "Laudo Semanal",
+      "SUBTITULO": "{nome} — semana vigente",
+      "BLOCO_CLINICO": "1 — Laudo Clínico (Médico Psiquiatra)",
+      "BLOCO_TERAPEUTICO": "2 — Laudo Terapêutico (Psicólogo)",
+      "BLOCO_DISCIPLINAR": "3 — Laudo Disciplinar (Coordenação Técnica)",
+      "ENVIADO": "Laudo registrado. Continue com os demais blocos.",
+      "VOLTAR_KANBAN": "Voltar ao Kanban"
+    },
     "RISCO": {
       "TITULO": "Escala de Avaliação de Risco de Suicídio",
+      "TITULO_CURTO": "Avaliação de Risco",
       "SUBTITULO": "{nome} — escore invertido: pontuação baixa = risco alto",
       "ENVIAR": "Registrar avaliação",
       "ENVIADO": "Avaliação registrada. A classificação de risco foi recalculada."
@@ -123,6 +140,16 @@
         "ARQUIVO_LIDO": "Arquivo lido: {n} propriedades. Revise no console antes de aplicar manualmente.",
         "ARQUIVO_INVALIDO": "Arquivo inválido — esperado um JSON exportado por esta tela."
       }
+    },
+    "PAINEL": {
+      "VOLTAR_KANBAN": "Kanban",
+      "LAUDOS_SEMANA": "Laudos da semana",
+      "BLOCO_CLINICO": "Clínico",
+      "BLOCO_TERAPEUTICO": "Terapêutico",
+      "BLOCO_DISCIPLINAR": "Disciplinar",
+      "PENDENTE": "Pendente",
+      "HISTORICO_RECENTE": "Histórico recente",
+      "VER_HISTORICO_COMPLETO": "Ver histórico completo"
     },
     "VINCULO": {
       "CRIAR_REGISTRO": "Criar registro",

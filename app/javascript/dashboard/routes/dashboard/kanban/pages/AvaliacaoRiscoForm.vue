@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 
@@ -9,20 +9,9 @@ import FocohBlocoFormulario from '../components/FocohBlocoFormulario.vue';
 import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
-/**
- * Escala de Avaliação de Risco de Suicídio (Aba C da Ficha de Admissão, e
- * recorrente depois — diária/3x/2x por semana conforme a última
- * classificação). Formulário único, sem etapa: os 5 critérios são fixos do
- * instrumento oficial da clínica, não mudam por fase.
- *
- * A sincronização (migration de sincronização) soma os 5 critérios, valida
- * o intervalo 5-20 e grava em `avaliacoes_risco` — o `nivel` (Baixo/
- * Moderado/Alto) é derivado pelo trigger que já existe
- * (`tg_avaliacoes_risco_derivar_nivel`), com a escala invertida corrigida.
- * Este componente não calcula nada, só coleta os 5 números.
- */
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const pacienteId = route.params.pacienteId;
 
 const paciente = ref(null);
@@ -66,10 +55,13 @@ const onEnviar = async ({ respostas }) => {
 
   if (ok) {
     useAlert(t('FOCOH_KANBAN.RISCO.ENVIADO'));
+    setTimeout(() => {
+      router.push({
+        name: 'kanban_clinico_index',
+        params: { accountId: route.params.accountId },
+      });
+    }, 1800);
   } else {
-    // O erro de intervalo (escore fora de 5-20) levantado pela sincronização
-    // chega aqui como error.message — não precisa de tradução própria,
-    // porque é validação de dado incompleto, não regra de negócio.
     useAlert(error?.message ?? t('FOCOH_KANBAN.BLOCO.ENVIAR'));
   }
 };
