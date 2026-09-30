@@ -7,6 +7,7 @@ import { useAlert } from 'dashboard/composables';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import FocohBlocoFormulario from '../components/FocohBlocoFormulario.vue';
+import FocohNavegacaoPaciente from '../components/FocohNavegacaoPaciente.vue';
 import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
@@ -105,47 +106,50 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="flex flex-col w-full h-full gap-6 p-6 overflow-y-auto bg-n-surface-1">
-    <div v-if="isLoadingPaciente" class="flex items-center justify-center flex-1">
-      <Spinner :size="24" />
-    </div>
-
-    <template v-else-if="paciente">
-      <header class="flex items-start justify-between gap-4">
-        <div>
-          <h1 class="text-heading-1 text-n-slate-12">
-            {{ t('FOCOH_KANBAN.LAUDO.TITULO') }}
-          </h1>
-          <p class="mt-1 text-body-main text-n-slate-11">
-            {{ t('FOCOH_KANBAN.LAUDO.SUBTITULO', { nome: paciente.nome }) }}
-          </p>
-        </div>
-        <Button
-          :label="t('FOCOH_KANBAN.LAUDO.VOLTAR_KANBAN')"
-          variant="ghost"
-          size="sm"
-          icon="i-lucide-arrow-left"
-          @click="voltarKanban"
-        />
-      </header>
-
-      <div v-if="isLoadingDefinicoes" class="flex items-center justify-center flex-1">
+  <section class="flex flex-col w-full h-full bg-n-surface-1">
+    <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+      <div v-if="isLoadingPaciente" class="flex items-center justify-center flex-1">
         <Spinner :size="24" />
       </div>
 
-      <div v-else class="flex flex-col gap-4">
-        <FocohBlocoFormulario
-          v-for="{ bloco, defs } in blocos"
-          :key="bloco"
-          :titulo="t(BLOCO_TITULO[bloco] ?? bloco)"
-          :definicoes="defs"
-          com-decisao
-          :is-submitting="isSubmitting"
-          :ultimo-envio="ultimoEnvioPorBloco[bloco]"
-          :enviado="blocoEnviadoNestaVisita.has(bloco)"
-          @enviar="payload => onEnviarBloco(bloco, payload)"
-        />
-      </div>
-    </template>
+      <template v-else-if="paciente">
+        <header class="flex items-start justify-between gap-4">
+          <div>
+            <h1 class="text-heading-1 text-n-slate-12">
+              {{ t('FOCOH_KANBAN.LAUDO.TITULO') }}
+            </h1>
+            <p class="mt-1 text-body-main text-n-slate-11">
+              {{ t('FOCOH_KANBAN.LAUDO.SUBTITULO', { nome: paciente.nome }) }}
+            </p>
+          </div>
+          <Button
+            :label="t('FOCOH_KANBAN.LAUDO.VOLTAR_KANBAN')"
+            variant="ghost"
+            size="sm"
+            icon="i-lucide-arrow-left"
+            @click="voltarKanban"
+          />
+        </header>
+
+        <div v-if="isLoadingDefinicoes" class="flex items-center justify-center flex-1">
+          <Spinner :size="24" />
+        </div>
+
+        <div v-else class="flex flex-col gap-4">
+          <FocohBlocoFormulario
+            v-for="{ bloco, defs } in blocos"
+            :key="bloco"
+            :titulo="t(BLOCO_TITULO[bloco] ?? bloco)"
+            :definicoes="defs"
+            com-decisao
+            :is-submitting="isSubmitting"
+            :ultimo-envio="ultimoEnvioPorBloco[bloco]"
+            :enviado="blocoEnviadoNestaVisita.has(bloco)"
+            @enviar="payload => onEnviarBloco(bloco, payload)"
+          />
+        </div>
+      </template>
+    </div>
+    <FocohNavegacaoPaciente />
   </section>
 </template>
