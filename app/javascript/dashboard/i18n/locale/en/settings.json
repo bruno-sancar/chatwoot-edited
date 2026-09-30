@@ -1,4 +1,4 @@
-﻿{
+﻿﻿{
   "PROFILE_SETTINGS": {
     "LINK": "Profile Settings",
     "TITLE": "Profile Settings",
@@ -329,6 +329,7 @@
     "CALLS": "Calls",
     "KANBAN": "Kanban",
     "CLINICO": "Clinical",
+    "CONFIGURACOES_KANBAN": "Settings",
     "CAPTAIN_ASSISTANTS": "Assistants",
     "CAPTAIN_OVERVIEW": "Overview",
     "CAPTAIN_DOCUMENTS": "Documents",
