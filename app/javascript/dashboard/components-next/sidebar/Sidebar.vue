@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { h, ref, computed, onMounted, watch } from 'vue';
 import { provideSidebarContext, useSidebarResize } from './provider';
 import { useAccount } from 'dashboard/composables/useAccount';
@@ -594,11 +594,25 @@ const menuItems = computed(() => {
         ]
       : []),
     {
-      name: 'Kanban',
-      label: t('SIDEBAR.KANBAN'),
-      icon: 'i-lucide-kanban',
-      to: accountScopedRoute('kanban_clinico_index'),
-      activeOn: ['kanban_clinico_index'],
+      name: 'Clinico',
+      label: t('SIDEBAR.CLINICO'),
+      icon: 'i-lucide-stethoscope',
+      children: [
+        {
+          name: 'Kanban',
+          label: t('SIDEBAR.KANBAN'),
+          to: accountScopedRoute('kanban_clinico_index'),
+          activeOn: [
+            'kanban_clinico_index',
+            'kanban_clinico_admissao',
+            'kanban_clinico_progressao_fase',
+            'kanban_clinico_avaliacao_risco',
+            'kanban_clinico_laudo_semanal',
+            'kanban_clinico_ficha_admissao',
+            'kanban_clinico_historico_paciente',
+          ],
+        },
+      ],
     },
     {
       name: 'Contacts',
