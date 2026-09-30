@@ -3,6 +3,8 @@
     "HEADER": "Kanban Clínico",
     "SUBTITULO": "Jornada do paciente — Rede Focoh",
     "COLUNA_VAZIA": "Nenhum paciente nesta fase",
+    "PROGRAMA_JORNADA": "Jornada de Superação",
+    "PROGRAMA_DETOX": "Detox (30 dias)",
     "FASES": {
       "ADMISSAO_TRIAGEM": {
         "NOME": "Admissão e Triagem Inicial",
@@ -27,6 +29,30 @@
       "ALTA_TRANSICAO": {
         "NOME": "Alta Hospitalar e Transição AMANDA",
         "TEMPO": "sem prazo definido"
+      },
+      "DETOX_ADMISSAO": {
+        "NOME": "Admissão",
+        "TEMPO": "até 24h"
+      },
+      "DETOX_SEMANA_1": {
+        "NOME": "Semana 1",
+        "TEMPO": "dias 1–7"
+      },
+      "DETOX_SEMANA_2": {
+        "NOME": "Semana 2",
+        "TEMPO": "dias 8–14"
+      },
+      "DETOX_SEMANA_3": {
+        "NOME": "Semana 3",
+        "TEMPO": "dias 15–21"
+      },
+      "DETOX_SEMANA_4": {
+        "NOME": "Semana 4",
+        "TEMPO": "dias 22–30"
+      },
+      "DETOX_ALTA_POS_ALTA": {
+        "NOME": "Alta e Pós-Alta",
+        "TEMPO": "transição 90 dias"
       }
     },
     "CARD": {

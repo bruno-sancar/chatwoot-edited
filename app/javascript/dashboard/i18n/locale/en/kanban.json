@@ -3,6 +3,8 @@
     "HEADER": "Clinical Kanban",
     "SUBTITULO": "Patient journey — Rede Focoh",
     "COLUNA_VAZIA": "No patients in this phase",
+    "PROGRAMA_JORNADA": "Jornada de Superação",
+    "PROGRAMA_DETOX": "Detox (30 days)",
     "FASES": {
       "ADMISSAO_TRIAGEM": {
         "NOME": "Admission and Initial Triage",
@@ -27,6 +29,30 @@
       "ALTA_TRANSICAO": {
         "NOME": "Hospital Discharge and AMANDA Transition",
         "TEMPO": "no set duration"
+      },
+      "DETOX_ADMISSAO": {
+        "NOME": "Admission",
+        "TEMPO": "up to 24h"
+      },
+      "DETOX_SEMANA_1": {
+        "NOME": "Week 1",
+        "TEMPO": "days 1–7"
+      },
+      "DETOX_SEMANA_2": {
+        "NOME": "Week 2",
+        "TEMPO": "days 8–14"
+      },
+      "DETOX_SEMANA_3": {
+        "NOME": "Week 3",
+        "TEMPO": "days 15–21"
+      },
+      "DETOX_SEMANA_4": {
+        "NOME": "Week 4",
+        "TEMPO": "days 22–30"
+      },
+      "DETOX_ALTA_POS_ALTA": {
+        "NOME": "Discharge and Post-discharge",
+        "TEMPO": "90-day transition"
       }
     },
     "CARD": {

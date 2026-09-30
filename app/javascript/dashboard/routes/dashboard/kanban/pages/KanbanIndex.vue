@@ -10,7 +10,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import KanbanCard from '../components/KanbanCard.vue';
 import KanbanColumn from '../components/KanbanColumn.vue';
 import { useFocohKanban } from '../useFocohKanban';
-import { FASES_JORNADA, CODIGOS_TRAVA } from '../constants';
+import { PROGRAMAS, CODIGOS_TRAVA } from '../constants';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -19,7 +19,6 @@ const router = useRouter();
 const {
   isConfigured,
   cards,
-  cardsPorFase,
   isLoading,
   erroCarregamento,
   erroAutenticacao,
@@ -27,8 +26,6 @@ const {
   moverPaciente,
 } = useFocohKanban();
 
-// Códigos vindos do endpoint de token do Rails. Cada um vira um motivo legível
-// na tela: quadro vazio sem explicação se confundiria com clínica sem pacientes.
 const MOTIVOS_AUTENTICACAO = {
   clinical_role_missing: 'KANBAN.ESTADO.SEM_PAPEL_CLINICO',
   clinical_role_invalid: 'KANBAN.ESTADO.PAPEL_CLINICO_INVALIDO',
@@ -41,25 +38,42 @@ const mensagemAutenticacao = computed(() =>
 const dialogBloqueio = useTemplateRef('dialogBloqueio');
 const mensagemBloqueio = ref('');
 
-// O vuedraggable move itens entre arrays, então cada coluna precisa do seu
-// próprio array mutável. `cardsPorFase` é a leitura derivada do banco; `quadro`
-// é a cópia que o arraste manipula até o banco confirmar ou negar.
+// Programa selecionado — começa com Jornada de Superação
+const programaSelecionado = ref(PROGRAMAS[0]);
+
+const fasesAtivas = computed(() => programaSelecionado.value.fases);
+
+// Filtra cards pelo programa selecionado
+const cardsFiltrados = computed(() =>
+  cards.value.filter(c => c.programa === programaSelecionado.value.id)
+);
+
+const cardsPorFaseAtual = computed(() =>
+  cardsFiltrados.value.reduce((acc, card) => {
+    acc[card.fase] = acc[card.fase] || [];
+    acc[card.fase].push(card);
+    return acc;
+  }, {})
+);
+
 const quadro = ref({});
 
 const sincronizarQuadro = () => {
   quadro.value = Object.fromEntries(
-    FASES_JORNADA.map(fase => [fase.id, [...(cardsPorFase.value[fase.id] ?? [])]])
+    fasesAtivas.value.map(fase => [fase.id, [...(cardsPorFaseAtual.value[fase.id] ?? [])]])
   );
 };
 
-watch(cards, sincronizarQuadro, { immediate: true });
+watch([cards, programaSelecionado], sincronizarQuadro, { immediate: true });
+
+const selecionarPrograma = programa => {
+  programaSelecionado.value = programa;
+};
 
 const onMove = async (card, faseDestino) => {
   const { ok, error } = await moverPaciente(card.id, faseDestino);
 
   if (!ok) {
-    // A copy oficial de bloqueio mora no banco; o i18n é só rede de proteção
-    // para o caso de a mensagem não chegar.
     const mensagem = error?.message || t('KANBAN.BLOQUEIO.FALLBACK');
 
     if (error?.code === CODIGOS_TRAVA.AVANCO_BLOQUEADO) {
@@ -70,9 +84,6 @@ const onMove = async (card, faseDestino) => {
     }
   }
 
-  // Recarregar em qualquer desfecho: se foi negado, devolve o cartão à coluna
-  // de origem; se foi aceito, atualiza os flags derivados (laudos da semana,
-  // pode_avancar) que a nova fase muda.
   await carregarCards();
 };
 
@@ -89,14 +100,35 @@ onMounted(carregarCards);
 <template>
   <section class="flex flex-col w-full h-full overflow-hidden bg-n-surface-1">
     <header class="flex items-start justify-between gap-4 px-6 pt-6 shrink-0">
-      <div>
-        <h1 class="text-heading-1 text-n-slate-12">
-          {{ t('KANBAN.HEADER') }}
-        </h1>
-        <p class="mt-1 text-body-main text-n-slate-11">
-          {{ t('KANBAN.SUBTITULO') }}
-        </p>
+      <div class="flex flex-col gap-3">
+        <div>
+          <h1 class="text-heading-1 text-n-slate-12">
+            {{ t('KANBAN.HEADER') }}
+          </h1>
+          <p class="mt-1 text-body-main text-n-slate-11">
+            {{ t('KANBAN.SUBTITULO') }}
+          </p>
+        </div>
+
+        <!-- Seletor de programa -->
+        <div v-if="isConfigured" class="flex gap-1 p-1 rounded-lg bg-n-surface-2 w-fit">
+          <button
+            v-for="programa in PROGRAMAS"
+            :key="programa.id"
+            type="button"
+            class="px-3 py-1.5 rounded-md text-body-sm font-medium transition-colors"
+            :class="
+              programaSelecionado.id === programa.id
+                ? 'bg-n-solid-2 text-n-slate-12 shadow-sm'
+                : 'text-n-slate-11 hover:text-n-slate-12'
+            "
+            @click="selecionarPrograma(programa)"
+          >
+            {{ t(`KANBAN.${programa.labelKey}`) }}
+          </button>
+        </div>
       </div>
+
       <Button
         v-if="isConfigured"
         :label="t('FOCOH_KANBAN.ADMISSAO.CRIAR_PACIENTE')"
@@ -141,16 +173,11 @@ onMounted(carregarCards);
     </div>
 
     <template v-else>
-      <!--
-        Requisito oficial: o formato de colunas é desktop-only. Em celular
-        corporativo o padrão é lista, sem arraste — progressão de fase não é
-        gesto de tela pequena.
-      -->
       <main class="flex-1 hidden px-6 py-4 overflow-x-auto md:block">
         <div class="grid grid-flow-col auto-cols-[minmax(17rem,1fr)] gap-4 h-full">
           <KanbanColumn
-            v-for="fase in FASES_JORNADA"
-            :key="fase.id"
+            v-for="fase in fasesAtivas"
+            :key="fase.id + programaSelecionado.id"
             :fase="fase"
             :cards="quadro[fase.id] ?? []"
             @move="card => onMove(card, fase.id)"
@@ -160,8 +187,8 @@ onMounted(carregarCards);
 
       <main class="flex-1 px-4 py-4 overflow-y-auto md:hidden">
         <div
-          v-for="fase in FASES_JORNADA"
-          :key="fase.id"
+          v-for="fase in fasesAtivas"
+          :key="fase.id + programaSelecionado.id"
           class="flex flex-col gap-2 mb-6"
         >
           <div class="flex items-center gap-2">
