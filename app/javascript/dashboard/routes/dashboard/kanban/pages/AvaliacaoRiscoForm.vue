@@ -16,6 +16,7 @@ const pacienteId = route.params.pacienteId;
 
 const paciente = ref(null);
 const isLoadingPaciente = ref(true);
+const enviado = ref(false);
 
 const {
   definicoes,
@@ -54,6 +55,7 @@ const onEnviar = async ({ respostas }) => {
   });
 
   if (ok) {
+    enviado.value = true;
     useAlert(t('FOCOH_KANBAN.RISCO.ENVIADO'));
     setTimeout(() => {
       router.push({
@@ -92,6 +94,7 @@ onMounted(async () => {
         :titulo="t('FOCOH_KANBAN.RISCO.TITULO')"
         :definicoes="definicoes"
         :is-submitting="isSubmitting"
+        :enviado="enviado"
         @enviar="onEnviar"
       />
     </template>

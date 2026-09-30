@@ -62,6 +62,7 @@
     "BLOCO": {
       "DECISAO": "Decisão do bloco",
       "ENVIAR": "Enviar",
+      "ENVIADO": "Enviado",
       "ULTIMO_ENVIO": "último envio {data}",
       "CAMPOS_OBRIGATORIOS_FALTANDO": "Falta preencher {n} campo obrigatório | Falta preencher {n} campos obrigatórios"
     },

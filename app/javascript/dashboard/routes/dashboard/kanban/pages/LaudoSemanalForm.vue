@@ -23,6 +23,7 @@ const BLOCO_TITULO = {
 
 const paciente = ref(null);
 const isLoadingPaciente = ref(true);
+const blocoEnviadoNestaVisita = ref(new Set());
 
 const {
   definicoes,
@@ -82,6 +83,7 @@ const onEnviarBloco = async (bloco, { respostas, resultado }) => {
 
   if (ok) {
     useAlert(t('FOCOH_KANBAN.LAUDO.ENVIADO'));
+    blocoEnviadoNestaVisita.value = new Set([...blocoEnviadoNestaVisita.value, bloco]);
     await carregarHistorico(pacienteId);
   } else {
     useAlert(error?.message ?? t('FOCOH_KANBAN.BLOCO.ENVIAR'));
@@ -140,6 +142,7 @@ onMounted(async () => {
           com-decisao
           :is-submitting="isSubmitting"
           :ultimo-envio="ultimoEnvioPorBloco[bloco]"
+          :enviado="blocoEnviadoNestaVisita.has(bloco)"
           @enviar="payload => onEnviarBloco(bloco, payload)"
         />
       </div>

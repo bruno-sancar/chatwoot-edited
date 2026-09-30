@@ -62,6 +62,7 @@
     "BLOCO": {
       "DECISAO": "Block decision",
       "ENVIAR": "Submit",
+      "ENVIADO": "Submitted",
       "ULTIMO_ENVIO": "last submission {data}",
       "CAMPOS_OBRIGATORIOS_FALTANDO": "{n} required field missing | {n} required fields missing"
     },

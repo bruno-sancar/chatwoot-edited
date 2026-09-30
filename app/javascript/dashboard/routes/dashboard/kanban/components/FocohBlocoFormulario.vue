@@ -16,6 +16,7 @@ const props = defineProps({
   ]},
   isSubmitting: { type: Boolean, default: false },
   ultimoEnvio: { type: Object, default: null },
+  enviado: { type: Boolean, default: false },
 });
 const emit = defineEmits(['enviar']);
 const { t } = useI18n();
@@ -65,7 +66,14 @@ const enviar = () => {
       <h3 class="text-heading-2 text-n-slate-12">{{ titulo }}</h3>
       <div class="flex items-center gap-2 shrink-0">
         <span
-          v-if="ultimoEnvio"
+          v-if="enviado"
+          class="flex items-center gap-1 text-label-small text-n-teal-11"
+        >
+          <span class="i-lucide-check-circle size-3.5" />
+          {{ t('FOCOH_KANBAN.BLOCO.ENVIADO') }}
+        </span>
+        <span
+          v-else-if="ultimoEnvio"
           class="text-label-small text-n-slate-11"
         >
           {{ t('FOCOH_KANBAN.BLOCO.ULTIMO_ENVIO', { data: ultimoEnvio.data }) }}
@@ -117,8 +125,9 @@ const enviar = () => {
       </p>
 
       <Button
-        :label="t('FOCOH_KANBAN.BLOCO.ENVIAR')"
+        :label="enviado ? t('FOCOH_KANBAN.BLOCO.ENVIADO') : t('FOCOH_KANBAN.BLOCO.ENVIAR')"
         :is-loading="isSubmitting"
+        :disabled="enviado"
         size="sm"
         class="self-start"
         @click="enviar"
