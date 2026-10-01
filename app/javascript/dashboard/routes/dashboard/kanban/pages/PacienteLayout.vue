@@ -22,7 +22,7 @@ const contatoChatwoot = ref(null);
 const { historico, carregarHistorico } = useFocohFormularios();
 
 const FASE_LABEL = {
-  admissao_triagem: 'AdmissÃ£o',
+  admissao_triagem: 'Admissão',
   fase1_autocritica: 'F1',
   fase2_disciplina: 'F2',
   fase3_empatia: 'F3',
@@ -132,14 +132,15 @@ onMounted(async () => {
   const [{ data: pac }, { data: riscos }, { data: laudos }] = await Promise.all([
     supabase
       .from('pacientes')
-      .select('id, nome, como_e_chamado, fase, programa, data_internacao, chatwoot_conversation_id')
+      .select('id, nome, fase, programa, data_internacao, chatwoot_conversation_id')
       .eq('id', pacienteId)
       .single(),
     supabase
-      .from('avaliacoes_risco')
-      .select('resultado, criado_em')
+      .from('respostas_formulario')
+      .select('resultado, enviado_em')
       .eq('paciente_id', pacienteId)
-      .order('criado_em', { ascending: false })
+      .eq('formulario_tipo', 'avaliacao_risco')
+      .order('enviado_em', { ascending: false })
       .limit(1),
     supabase
       .from('laudos_semanais')
@@ -364,9 +365,10 @@ onMounted(async () => {
                 {{ TIPO_FORMULARIO_LABEL[envio.formulario_tipo] ?? envio.formulario_tipo }}
                 <template v-if="envio.bloco"> &middot; {{ BLOCO_LABEL[envio.bloco] ?? envio.bloco }}</template>
               </p>
-              <p v-if="envio.autor_nome" class="text-label-small text-n-slate-10 truncate">
-                {{ envio.autor_nome }}
-              </p>
+              <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <span v-if="envio.autor_nome" class="text-label-small text-n-slate-10">
+                  {{ envio.autor_nome }} ·
+                </span>
                 <span class="text-label-small text-n-slate-10">
                   {{ new Date(envio.enviado_em).toLocaleDateString('pt-BR') }}
                 </span>
