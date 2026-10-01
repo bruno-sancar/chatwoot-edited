@@ -1,7 +1,7 @@
-<script setup>
+﻿<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import { useStore } from 'vuex';import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -12,6 +12,7 @@ import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
 const { t } = useI18n();
+const currentUserName = () => store.getters['auth/getCurrentUser']?.name ?? '';
 const route = useRoute();
 const router = useRouter();
 const pacienteId = route.params.pacienteId;
@@ -80,6 +81,7 @@ const onEnviarBloco = async (bloco, { respostas, resultado }) => {
     dataReferencia: new Date().toISOString().slice(0, 10),
     respostas,
     resultado,
+    autorNome: currentUserName(),
   });
 
   if (ok) {
@@ -153,3 +155,6 @@ onMounted(async () => {
     <FocohNavegacaoPaciente />
   </section>
 </template>
+
+
+

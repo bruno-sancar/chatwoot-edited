@@ -1,17 +1,17 @@
-import { ref } from 'vue';
+﻿import { ref } from 'vue';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
 /**
- * Motor de formulários genérico: lê o catálogo (`definicoes_formulario`) e
- * grava envios (`respostas_formulario`). Usado por toda tela clínica
- * (Admissão, Progressão de Fase, Avaliação de Risco, e o que vier depois) —
- * a tela não sabe nada de campo específico, só monta o formulário a partir
- * do que o catálogo devolve.
+ * Motor de formulÃ¡rios genÃ©rico: lÃª o catÃ¡logo (`definicoes_formulario`) e
+ * grava envios (`respostas_formulario`). Usado por toda tela clÃ­nica
+ * (AdmissÃ£o, ProgressÃ£o de Fase, AvaliaÃ§Ã£o de Risco, e o que vier depois) â€”
+ * a tela nÃ£o sabe nada de campo especÃ­fico, sÃ³ monta o formulÃ¡rio a partir
+ * do que o catÃ¡logo devolve.
  *
  * Ver `supabase/migrations/20260925220000_focoh_kanban_motor_formularios.sql`
- * para o desenho de dado: o catálogo é editável em lugar pelo painel de
- * configuração; a resposta guarda uma CÓPIA do que foi perguntado, não uma
- * referência — por isso `enviarResposta` recebe as definições já carregadas
+ * para o desenho de dado: o catÃ¡logo Ã© editÃ¡vel em lugar pelo painel de
+ * configuraÃ§Ã£o; a resposta guarda uma CÃ“PIA do que foi perguntado, nÃ£o uma
+ * referÃªncia â€” por isso `enviarResposta` recebe as definiÃ§Ãµes jÃ¡ carregadas
  * e as embute em `campos`, em vez de o banco montar isso sozinho.
  */
 export function useFocohFormularios() {
@@ -48,9 +48,9 @@ export function useFocohFormularios() {
         .order('bloco', { ascending: true, nullsFirst: true })
         .order('ordem', { ascending: true });
 
-      // programa/etapa nulos no catálogo significam "vale para qualquer
-      // valor" (ex.: Aba A da admissão é comum aos dois quadros) — por isso
-      // o filtro é "igual OU nulo", não um match exato.
+      // programa/etapa nulos no catÃ¡logo significam "vale para qualquer
+      // valor" (ex.: Aba A da admissÃ£o Ã© comum aos dois quadros) â€” por isso
+      // o filtro Ã© "igual OU nulo", nÃ£o um match exato.
       if (filtro.programa) {
         query = query.or(`programa.eq.${filtro.programa},programa.is.null`);
       }
@@ -70,7 +70,7 @@ export function useFocohFormularios() {
   };
 
   /**
-   * Agrupa `definicoes` por bloco, na ordem em que devem aparecer — o
+   * Agrupa `definicoes` por bloco, na ordem em que devem aparecer â€” o
    * formato que `FocohFormularioDinamico.vue` consome diretamente.
    */
   const definicoesPorBloco = () => {
@@ -89,7 +89,7 @@ export function useFocohFormularios() {
    * @param {string} params.formularioTipo
    * @param {string=} params.etapa
    * @param {string=} params.bloco
-   * @param {string} params.dataReferencia 'YYYY-MM-DD' — data clínica, não o
+   * @param {string} params.dataReferencia 'YYYY-MM-DD' â€” data clÃ­nica, nÃ£o o
    *   carimbo de envio (esse o banco grava sozinho em `enviado_em`).
    * @param {Array<{definicao: object, valor: unknown}>} params.respostas
    * @param {string=} params.resultado 'apto'|'nao_apto'|'baixo'|'moderado'|'alto'
@@ -104,6 +104,7 @@ export function useFocohFormularios() {
     respostas,
     resultado,
     autorPapel,
+    autorNome,
   }) => {
     const supabase = getFocohSupabaseClient();
     if (!supabase) return { ok: false };
@@ -111,9 +112,9 @@ export function useFocohFormularios() {
     isSubmitting.value = true;
     erroEnvio.value = null;
 
-    // Congela o que foi perguntado junto do que foi respondido — é o que
-    // mantém o envio legível mesmo se o catálogo mudar depois (ver comentário
-    // em respostas_formulario.campos, migration do motor de formulários).
+    // Congela o que foi perguntado junto do que foi respondido â€” Ã© o que
+    // mantÃ©m o envio legÃ­vel mesmo se o catÃ¡logo mudar depois (ver comentÃ¡rio
+    // em respostas_formulario.campos, migration do motor de formulÃ¡rios).
     const campos = respostas.map(({ definicao, valor }) => ({
       campo_chave: definicao.campo_chave,
       rotulo: definicao.rotulo,
@@ -132,6 +133,7 @@ export function useFocohFormularios() {
           bloco: bloco ?? null,
           data_referencia: dataReferencia,
           autor_papel: autorPapel ?? null,
+          autor_nome: autorNome ?? null,
           campos,
           resultado: resultado ?? null,
         })
@@ -192,3 +194,4 @@ export function useFocohFormularios() {
     carregarHistorico,
   };
 }
+
