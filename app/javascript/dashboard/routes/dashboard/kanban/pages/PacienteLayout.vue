@@ -74,8 +74,8 @@ const getMondayThisWeek = () => {
 };
 
 const diasInternado = computed(() => {
-  if (!paciente.value?.data_internacao) return null;
-  const diff = Date.now() - new Date(paciente.value.data_internacao).getTime();
+  if (!paciente.value?.data_admissao) return null;
+  const diff = Date.now() - new Date(paciente.value.data_admissao).getTime();
   return Math.floor(diff / 86400000);
 });
 
@@ -132,7 +132,7 @@ onMounted(async () => {
   const [{ data: pac }, { data: riscos }, { data: laudos }] = await Promise.all([
     supabase
       .from('pacientes')
-      .select('id, nome, fase, programa, data_internacao, chatwoot_conversation_id')
+      .select('id, nome, fase, programa, data_admissao')
       .eq('id', pacienteId)
       .single(),
     supabase
@@ -195,12 +195,6 @@ onMounted(async () => {
 
           <div>
             <p class="text-heading-3 text-n-slate-12 leading-snug break-words">
-              {{ paciente.como_e_chamado || paciente.nome }}
-            </p>
-            <p
-              v-if="paciente.como_e_chamado && paciente.como_e_chamado !== paciente.nome"
-              class="text-label-small text-n-slate-10 truncate"
-            >
               {{ paciente.nome }}
             </p>
           </div>
