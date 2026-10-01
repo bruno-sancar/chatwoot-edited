@@ -8,11 +8,11 @@ import { getFocohSupabaseClient, isFocohConfigurado, obterFocohToken } from '../
 const { t } = useI18n();
 
 const FORMULARIOS = [
-  { id: 'admissao',         label: 'Admissão e Triagem' },
-  { id: 'progressao_fase',  label: 'Progressão de Fase' },
-  { id: 'avaliacao_risco',  label: 'Avaliação de Risco' },
-  { id: 'laudo_semanal',    label: 'Laudo Semanal' },
-  { id: 'ficha_admissao',   label: 'Ficha de Admissão' },
+  { id: 'admissao',          label: 'Admissão e Triagem' },
+  { id: 'progressao_fase',   label: 'Progressão de Fase' },
+  { id: 'avaliacao_risco',   label: 'Avaliação de Risco' },
+  { id: 'evolucao_semanal',  label: 'Laudo Semanal' },
+  { id: 'ficha_admissao',    label: 'Ficha de Admissão' },
 ];
 
 const ABAS = [
@@ -29,6 +29,10 @@ const isSaving           = ref(false);
 const erro               = ref(null);
 const sucessoMsg         = ref(null);
 
+// Aba Usuários
+const usuarios           = ref([]);
+const isLoadingUsuarios  = ref(false);
+
 const isConfigurado = isFocohConfigurado();
 
 const carregarCampos = async () => {
@@ -43,8 +47,8 @@ const carregarCampos = async () => {
     await obterFocohToken();
     const { data, error: err } = await supabase
       .from('definicoes_formulario')
-      .select('id, campo_chave, label, tipo, ativo, ordem, obrigatorio')
-      .eq('formulario', formularioAtual.value.id)
+      .select('id, campo_chave, rotulo, tipo_campo, ativo, ordem, obrigatorio')
+      .eq('formulario_tipo', formularioAtual.value.id)
       .order('ordem');
 
     if (err) throw err;
@@ -54,6 +58,41 @@ const carregarCampos = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const carregarUsuarios = async () => {
+  if (!isConfigurado) return;
+  const supabase = getFocohSupabaseClient();
+  if (!supabase) return;
+
+  isLoadingUsuarios.value = true;
+  try {
+    await obterFocohToken();
+    const { data, error: err } = await supabase
+      .from('papeis_focoh')
+      .select('user_sub, papel, nome_exibicao, concedido_em')
+      .order('concedido_em');
+    if (err) throw err;
+    usuarios.value = data ?? [];
+  } catch (e) {
+    // silencioso — pode não ter permissão
+    usuarios.value = [];
+  } finally {
+    isLoadingUsuarios.value = false;
+  }
+};
+
+watch(abaSelecionada, aba => {
+  if (aba === 'usuarios') carregarUsuarios();
+});
+
+const PAPEL_LABEL = {
+  diretor_geral:       'Diretor Geral',
+  coordenacao_tecnica: 'Coordenação Técnica',
+  clinico:             'Clínico',
+  terapeuta:           'Terapeuta',
+  disciplinar:         'Disciplinar',
+  recepcao:            'Recepção',
 };
 
 const mover = (index, delta) => {
@@ -91,6 +130,28 @@ const salvar = async () => {
     erro.value = e.message ?? 'Erro ao salvar.';
   } finally {
     isSaving.value = false;
+  }
+};
+
+const exportarDados = async () => {
+  const supabase = getFocohSupabaseClient();
+  if (!supabase) return;
+  try {
+    await obterFocohToken();
+    const [{ data: pacientes }, { data: respostas }] = await Promise.all([
+      supabase.from('pacientes').select('*'),
+      supabase.from('respostas_formulario').select('*'),
+    ]);
+    const exportado = { exportado_em: new Date().toISOString(), pacientes, respostas };
+    const blob = new Blob([JSON.stringify(exportado, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `focoh-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    erro.value = e.message ?? 'Erro ao exportar.';
   }
 };
 
@@ -181,10 +242,10 @@ onMounted(carregarCampos);
                 <!-- Info do campo -->
                 <div class="flex flex-col gap-0.5">
                   <span class="text-sm font-medium text-n-slate-12">
-                    {{ campo.label }}
+                    {{ campo.rotulo }}
                     <span v-if="campo.obrigatorio" class="ml-1 text-xs text-n-red-9">*</span>
                   </span>
-                  <span class="text-xs text-n-slate-10">{{ campo.campo_chave }} · {{ campo.tipo }}</span>
+                  <span class="text-xs text-n-slate-10">{{ campo.campo_chave }} · {{ campo.tipo_campo }}</span>
                 </div>
 
                 <!-- Toggle ativo -->
@@ -244,11 +305,75 @@ onMounted(carregarCampos);
         </template>
       </template>
 
-      <!-- Abas placeholder -->
-      <template v-else>
-        <div class="flex flex-col items-center justify-center py-20 gap-3 text-n-slate-10">
-          <i class="i-lucide-construction text-4xl" />
-          <p class="text-sm">Em breve.</p>
+      <!-- Aba: Usuários -->
+      <template v-else-if="abaSelecionada === 'usuarios'">
+        <div class="mb-4 flex items-center justify-between">
+          <p class="text-sm text-n-slate-11">
+            Equipe com acesso ao Kanban Clínico e seus papéis.
+          </p>
+        </div>
+
+        <div v-if="isLoadingUsuarios" class="flex justify-center py-12">
+          <Spinner />
+        </div>
+
+        <div v-else-if="usuarios.length === 0" class="flex flex-col items-center justify-center py-20 gap-3 text-n-slate-10">
+          <i class="i-lucide-users text-4xl" />
+          <p class="text-sm">Nenhum usuário configurado.</p>
+          <p class="text-xs text-center max-w-xs">
+            Os papéis são atribuídos via SQL diretamente na tabela <code>papeis_focoh</code>.
+          </p>
+        </div>
+
+        <div v-else class="rounded-xl border border-n-weak overflow-hidden">
+          <div class="grid grid-cols-[1fr_auto_auto] text-xs font-medium text-n-slate-11 uppercase tracking-wide px-4 py-2 bg-n-weak border-b border-n-weak">
+            <span>Nome</span>
+            <span class="pr-4">Papel</span>
+            <span>Desde</span>
+          </div>
+          <div
+            v-for="u in usuarios"
+            :key="u.user_sub"
+            class="grid grid-cols-[1fr_auto_auto] items-center px-4 py-3 border-b border-n-weak last:border-b-0"
+          >
+            <span class="text-sm text-n-slate-12">{{ u.nome_exibicao || u.user_sub }}</span>
+            <span class="text-sm text-n-slate-11 pr-4">
+              {{ PAPEL_LABEL[u.papel] ?? u.papel }}
+            </span>
+            <span class="text-xs text-n-slate-10">
+              {{ new Date(u.concedido_em).toLocaleDateString('pt-BR') }}
+            </span>
+          </div>
+        </div>
+      </template>
+
+      <!-- Aba: Import/Export -->
+      <template v-else-if="abaSelecionada === 'importexport'">
+        <div class="flex flex-col gap-6 max-w-md">
+          <div>
+            <h2 class="text-sm font-semibold text-n-slate-12 mb-1">Exportar dados</h2>
+            <p class="text-sm text-n-slate-11 mb-3">
+              Exporta todos os pacientes e histórico de formulários em formato JSON.
+            </p>
+            <Button
+              label="Baixar exportação JSON"
+              icon="i-lucide-download"
+              variant="outline"
+              color-scheme="secondary"
+              @click="exportarDados"
+            />
+          </div>
+
+          <div class="border-t border-n-weak pt-6">
+            <h2 class="text-sm font-semibold text-n-slate-12 mb-1">Importar dados</h2>
+            <p class="text-sm text-n-slate-11 mb-3">
+              Importação de dados via arquivo JSON gerado por esta exportação.
+            </p>
+            <div class="flex flex-col items-center justify-center py-8 gap-2 rounded-xl border-2 border-dashed border-n-weak text-n-slate-10">
+              <i class="i-lucide-upload-cloud text-3xl" />
+              <p class="text-sm">Em breve — disponível na próxima versão.</p>
+            </div>
+          </div>
         </div>
       </template>
 

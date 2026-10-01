@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import KanbanCardFlag from './KanbanCardFlag.vue';
+import { PROGRAMAS } from '../constants';
 
 /**
  * Cartão do paciente.
@@ -33,6 +34,11 @@ const avaliacaoDeRiscoPendente = computed(
   () => props.card.nivel_pendencia === 'sem_avaliacao_risco'
 );
 
+const programaLabel = computed(() => {
+  const prog = PROGRAMAS.find(p => p.id === props.card.programa);
+  return prog ? t(`KANBAN.${prog.labelKey}`) : props.card.programa;
+});
+
 // Clique abre a Avaliação de Progressão de Fase — a ação mais frequente a
 // partir do quadro. O vuedraggable distingue clique de arraste sozinho, não
 // precisa de guarda extra aqui.
@@ -55,7 +61,7 @@ const abrirProgressao = () => {
         {{ card.nome }}
       </h3>
       <p class="truncate text-label-small text-n-slate-11">
-        <span v-if="card.programa">{{ card.programa }} · </span>
+        <span v-if="card.programa">{{ programaLabel }} · </span>
         {{ t('KANBAN.CARD.DIAS_INTERNADO', card.dias_internado) }}
       </p>
     </div>

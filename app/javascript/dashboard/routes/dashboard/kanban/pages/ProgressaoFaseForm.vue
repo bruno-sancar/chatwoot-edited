@@ -1,7 +1,7 @@
-<script setup>
+﻿<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import { useStore } from 'vuex';import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -12,6 +12,7 @@ import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
 const { t } = useI18n();
+const currentUserName = () => store.getters['auth/getCurrentUser']?.name ?? '';
 const route = useRoute();
 const router = useRouter();
 const pacienteId = route.params.pacienteId;
@@ -122,6 +123,7 @@ const onEnviarBloco = async (bloco, { respostas, resultado }) => {
     dataReferencia: new Date().toISOString().slice(0, 10),
     respostas,
     resultado,
+    autorNome: currentUserName(),
   });
 
   if (ok) {
@@ -159,7 +161,7 @@ onMounted(async () => {
               {{ t('FOCOH_KANBAN.PROGRESSAO.TITULO') }}
             </h1>
             <p class="mt-1 text-body-main text-n-slate-11">
-              {{ t('FOCOH_KANBAN.PROGRESSAO.SUBTITULO', { nome: paciente.nome, transicao }) }}
+              {{ paciente.nome }}<template v-if="transicao"> · {{ transicao }}</template>
             </p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
@@ -187,9 +189,22 @@ onMounted(async () => {
           </div>
         </header>
 
-        <p v-if="!transicao" class="text-body-main text-n-slate-11">
-          {{ t('FOCOH_KANBAN.PROGRESSAO.SEM_TRANSICAO') }}
-        </p>
+        <div
+          v-if="!transicao"
+          class="flex flex-col items-center justify-center flex-1 gap-4 py-16 text-center"
+        >
+          <div class="w-12 h-12 rounded-full bg-n-teal-3 flex items-center justify-center">
+            <span class="i-lucide-check-circle text-2xl text-n-teal-11" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <p class="text-heading-3 text-n-slate-12">
+              {{ t('FOCOH_KANBAN.PROGRESSAO.SEM_TRANSICAO') }}
+            </p>
+            <p class="text-body-sm text-n-slate-11 max-w-xs">
+              Este paciente concluiu todas as etapas do programa.
+            </p>
+          </div>
+        </div>
 
         <div v-else-if="isLoadingDefinicoes" class="flex items-center justify-center flex-1">
           <Spinner :size="24" />
@@ -213,3 +228,6 @@ onMounted(async () => {
     <FocohNavegacaoPaciente />
   </section>
 </template>
+
+
+

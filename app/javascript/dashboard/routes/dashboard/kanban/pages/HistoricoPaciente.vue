@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -16,6 +16,22 @@ import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient'
  * de laudos_semanais — recepção não vê conteúdo de formulário clínico).
  */
 const { t } = useI18n();
+
+const TIPO_FORMULARIO_LABEL = {
+  admissao:         'Admissão e Triagem',
+  progressao_fase:  'Progressão de Fase',
+  avaliacao_risco:  'Avaliação de Risco',
+  evolucao_semanal: 'Laudo Semanal',
+  ficha_admissao:   'Ficha de Admissão',
+};
+
+const BLOCO_LABEL = {
+  clinico:     'Clínico',
+  terapeutico: 'Terapêutico',
+  disciplinar: 'Disciplinar',
+  risco:       'Risco',
+  rede_apoio:  'Rede de Apoio',
+};
 const route = useRoute();
 const pacienteId = route.params.pacienteId;
 
@@ -86,9 +102,10 @@ onMounted(async () => {
           >
             <div class="flex items-center gap-2 min-w-0">
               <span class="truncate text-heading-3 text-n-slate-12">
-                {{ envio.formulario_tipo }}
-                <template v-if="envio.bloco"> · {{ envio.bloco }}</template>
-                <template v-if="envio.etapa"> · {{ envio.etapa }}</template>
+              <span class="truncate text-heading-3 text-n-slate-12">
+                {{ TIPO_FORMULARIO_LABEL[envio.formulario_tipo] ?? envio.formulario_tipo }}
+                <template v-if="envio.bloco"> &middot; {{ BLOCO_LABEL[envio.bloco] ?? envio.bloco }}</template>
+                <template v-if="envio.etapa"> &middot; {{ envio.etapa }}</template>
               </span>
               <span
                 v-if="envio.resultado"
@@ -105,7 +122,14 @@ onMounted(async () => {
 
           <div v-if="abertos.has(envio.id)" class="flex flex-col gap-2 px-4 pb-4">
             <p class="text-label-small text-n-slate-10">
-              {{ envio.autor_papel }} · {{ t('FOCOH_KANBAN.HISTORICO.DATA_REFERENCIA') }} {{ envio.data_referencia }}
+            <p class="text-label-small text-n-slate-10">
+              <template v-if="envio.autor_nome">
+                <span class="font-medium">{{ envio.autor_nome }}</span>
+                <template v-if="envio.autor_papel"> ({{ envio.autor_papel }})</template>
+                 &middot; 
+              </template>
+              {{ t('FOCOH_KANBAN.HISTORICO.DATA_REFERENCIA') }} {{ envio.data_referencia }}
+            </p>
             </p>
             <dl class="grid grid-cols-1 gap-1 sm:grid-cols-2">
               <div v-for="campo in envio.campos" :key="campo.campo_chave">

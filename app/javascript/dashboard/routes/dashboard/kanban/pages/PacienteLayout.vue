@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
@@ -27,7 +27,8 @@ const FASE_LABEL = {
   fase2_disciplina: 'F2',
   fase3_empatia: 'F3',
   fase4_identidade: 'F4',
-  alta_transicao: 'Alta',
+  alta_hospitalar: 'Alta Hosp.',
+  alta_transicao: 'Transição',
   transicao_amanda: 'AMANDA',
 };
 
@@ -37,7 +38,8 @@ const FASE_COR = {
   fase2_disciplina: 'bg-n-teal-3 text-n-teal-11',
   fase3_empatia: 'bg-n-amber-3 text-n-amber-11',
   fase4_identidade: 'bg-n-violet-3 text-n-violet-11',
-  alta_transicao: 'bg-n-teal-3 text-n-teal-11',
+  alta_hospitalar: 'bg-n-teal-3 text-n-teal-11',
+  alta_transicao: 'bg-n-slate-3 text-n-slate-11',
   transicao_amanda: 'bg-n-slate-3 text-n-slate-11',
 };
 
@@ -47,6 +49,22 @@ const RISCO_COR = {
   alto: 'bg-n-ruby-3 text-n-ruby-11',
 };
 
+
+const TIPO_FORMULARIO_LABEL = {
+  admissao:         'Admissão e Triagem',
+  progressao_fase:  'Progressão de Fase',
+  avaliacao_risco:  'Avaliação de Risco',
+  evolucao_semanal: 'Laudo Semanal',
+  ficha_admissao:   'Ficha de Admissão',
+};
+
+const BLOCO_LABEL = {
+  clinico:     'Clínico',
+  terapeutico: 'Terapêutico',
+  disciplinar: 'Disciplinar',
+  risco:       'Risco',
+  rede_apoio:  'Rede de Apoio',
+};
 const getMondayThisWeek = () => {
   const d = new Date();
   const day = d.getDay();
@@ -114,14 +132,15 @@ onMounted(async () => {
   const [{ data: pac }, { data: riscos }, { data: laudos }] = await Promise.all([
     supabase
       .from('pacientes')
-      .select('id, nome, como_e_chamado, fase, programa, data_internacao, chatwoot_conversation_id')
+      .select('id, nome, fase, programa, data_internacao, chatwoot_conversation_id')
       .eq('id', pacienteId)
       .single(),
     supabase
-      .from('avaliacoes_risco')
-      .select('resultado, criado_em')
+      .from('respostas_formulario')
+      .select('resultado, enviado_em')
       .eq('paciente_id', pacienteId)
-      .order('criado_em', { ascending: false })
+      .eq('formulario_tipo', 'avaliacao_risco')
+      .order('enviado_em', { ascending: false })
       .limit(1),
     supabase
       .from('laudos_semanais')
@@ -146,7 +165,7 @@ onMounted(async () => {
         contatoChatwoot.value = conversa.meta.sender;
       }
     } catch {
-      // silent — link fica disponível mesmo sem metadados do contato
+      // silent â€” link fica disponÃ­vel mesmo sem metadados do contato
     }
   }
 });
@@ -258,7 +277,7 @@ onMounted(async () => {
       <router-view />
     </main>
 
-    <!-- Right sidebar: contato Chatwoot + laudos da semana + histórico recente -->
+    <!-- Right sidebar: contato Chatwoot + laudos da semana + histÃ³rico recente -->
     <aside
       class="w-72 shrink-0 flex flex-col border-l border-n-weak bg-n-solid-1 overflow-y-auto"
     >
@@ -324,7 +343,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Histórico recente -->
+      <!-- HistÃ³rico recente -->
       <div class="p-4 flex flex-col gap-3">
         <p class="text-label-small font-medium text-n-slate-10 uppercase tracking-wide">
           {{ t('FOCOH_KANBAN.PAINEL.HISTORICO_RECENTE') }}
@@ -343,10 +362,13 @@ onMounted(async () => {
             <div class="mt-1.5 w-1.5 h-1.5 rounded-full bg-n-slate-7 shrink-0" />
             <div class="min-w-0 flex-1">
               <p class="text-body-sm text-n-slate-12 leading-snug">
-                {{ envio.formulario_tipo }}
-                <template v-if="envio.bloco">· {{ envio.bloco }}</template>
+                {{ TIPO_FORMULARIO_LABEL[envio.formulario_tipo] ?? envio.formulario_tipo }}
+                <template v-if="envio.bloco"> &middot; {{ BLOCO_LABEL[envio.bloco] ?? envio.bloco }}</template>
               </p>
-              <div class="flex items-center gap-1.5 mt-0.5">
+              <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <span v-if="envio.autor_nome" class="text-label-small text-n-slate-10">
+                  {{ envio.autor_nome }} ·
+                </span>
                 <span class="text-label-small text-n-slate-10">
                   {{ new Date(envio.enviado_em).toLocaleDateString('pt-BR') }}
                 </span>
@@ -374,3 +396,4 @@ onMounted(async () => {
     </aside>
   </div>
 </template>
+
