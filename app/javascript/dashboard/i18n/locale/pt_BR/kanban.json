@@ -103,7 +103,9 @@
       "BLOCO_DISCIPLINAR": "Disciplinar",
       "PENDENTE": "Pendente",
       "HISTORICO_RECENTE": "Histórico recente",
-      "VER_HISTORICO_COMPLETO": "Ver histórico completo"
+      "VER_HISTORICO_COMPLETO": "Ver histórico completo",
+      "VER_CONVERSA": "Ver conversa",
+      "SEM_CONVERSA": "Sem conversa vinculada"
     },
     "CONFIGURACOES": {
       "TITULO": "Kanban Clínico",
