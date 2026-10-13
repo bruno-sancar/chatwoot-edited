@@ -89,27 +89,24 @@ const atualizar = valor => emit('update:modelValue', valor);
       <Input
         v-if="definicao.tipo_campo === 'texto'"
         :model-value="modelValue"
-        :input-type="ehTelefone ? 'tel' : 'text'"
+        :type="ehTelefone ? 'tel' : 'text'"
         :placeholder="ehCPF ? '000.000.000-00' : ehTelefone ? '(00) 00000-0000' : undefined"
         @update:model-value="handleTextoUpdate"
       />
 
-      <!-- type=number: abre teclado numérico em mobile (inputmode="decimal" aceita vírgula) -->
       <Input
         v-else-if="definicao.tipo_campo === 'numero'"
         :model-value="modelValue"
-        input-type="number"
-        inputmode="decimal"
-        step="any"
-        :min="definicao.validacao?.min ?? undefined"
-        :max="definicao.validacao?.max ?? undefined"
+        type="number"
+        :min="definicao.opcoes?.min != null ? String(definicao.opcoes.min) : undefined"
+        :max="definicao.opcoes?.max != null ? String(definicao.opcoes.max) : undefined"
         @update:model-value="atualizar"
       />
 
       <Input
         v-else-if="definicao.tipo_campo === 'data'"
         :model-value="modelValue"
-        input-type="date"
+        type="date"
         @update:model-value="atualizar"
       />
 
