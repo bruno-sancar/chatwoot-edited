@@ -91,7 +91,7 @@
     "RISCO": {
       "TITULO": "Escala de Avaliação de Risco de Suicídio",
       "TITULO_CURTO": "Avaliação de Risco",
-      "SUBTITULO": "{nome} — escore invertido: pontuação baixa = risco alto",
+      "SUBTITULO": "{nome} — escala invertida: pontuação baixa = risco alto",
       "ENVIAR": "Registrar avaliação",
       "ENVIADO": "Avaliação registrada. A classificação de risco foi recalculada."
     },
