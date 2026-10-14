@@ -106,7 +106,13 @@ const abrirAdmissao = () => {
   });
 };
 
-onMounted(carregarCards);
+onMounted(() => {
+  if (route.query.programa) {
+    const p = PROGRAMAS.find(pr => pr.id === route.query.programa);
+    if (p) programaSelecionado.value = p;
+  }
+  carregarCards();
+});
 </script>
 
 <template>
