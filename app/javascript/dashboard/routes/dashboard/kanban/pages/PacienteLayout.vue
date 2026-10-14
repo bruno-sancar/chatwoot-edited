@@ -73,7 +73,11 @@ const navegar = routeName => {
 };
 
 const voltarKanban = () => {
-  router.push({ name: 'kanban_clinico_index', params: { accountId: route.params.accountId } });
+  router.push({
+    name: 'kanban_clinico_index',
+    params: { accountId: route.params.accountId },
+    query: paciente.value?.programa ? { programa: paciente.value.programa } : {},
+  });
 };
 
 const abrirConversa = () => {

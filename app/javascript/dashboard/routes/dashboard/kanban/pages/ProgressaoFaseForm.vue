@@ -18,11 +18,14 @@ const router = useRouter();
 const pacienteId = route.params.pacienteId;
 
 const TRANSICAO_POR_FASE = {
+  admissao_triagem:  'admissao_f1',
   fase1_autocritica: 'f1_f2',
-  fase2_disciplina: 'f2_f3',
-  fase3_empatia: 'f3_f4',
-  fase4_identidade: 'f4_alta',
+  fase2_disciplina:  'f2_f3',
+  fase3_empatia:     'f3_f4',
+  fase4_identidade:  'f4_alta',
 };
+
+const BLOCO_ORDEM = ['clinico', 'terapeutico', 'disciplinar', 'risco_sustentabilidade', 'rede_apoio_continuidade'];
 
 const BLOCO_TITULO = {
   clinico: 'FOCOH_KANBAN.PROGRESSAO.BLOCO_CLINICO',
@@ -56,7 +59,12 @@ const blocos = computed(() => {
   const grupos = definicoesPorBloco();
   return Array.from(grupos.entries())
     .filter(([bloco]) => bloco !== '__geral__')
-    .map(([bloco, defs]) => ({ bloco, defs }));
+    .map(([bloco, defs]) => ({ bloco, defs }))
+    .sort((a, b) => {
+      const ia = BLOCO_ORDEM.indexOf(a.bloco);
+      const ib = BLOCO_ORDEM.indexOf(b.bloco);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
 });
 
 const ultimoEnvioPorBloco = computed(() => {
