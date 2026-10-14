@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';import { useI18n } from 'vue-i18n';
@@ -23,6 +23,8 @@ const BLOCO_TITULO = {
   disciplinar: 'FOCOH_KANBAN.LAUDO.BLOCO_DISCIPLINAR',
 };
 
+const BLOCO_ORDEM = ['clinico', 'terapeutico', 'disciplinar'];
+
 const paciente = ref(null);
 const isLoadingPaciente = ref(true);
 const blocoEnviadoNestaVisita = ref(new Set());
@@ -42,7 +44,12 @@ const blocos = computed(() => {
   const grupos = definicoesPorBloco();
   return Array.from(grupos.entries())
     .filter(([bloco]) => bloco !== '__geral__')
-    .map(([bloco, defs]) => ({ bloco, defs }));
+    .map(([bloco, defs]) => ({ bloco, defs }))
+    .sort((a, b) => {
+      const ia = BLOCO_ORDEM.indexOf(a.bloco);
+      const ib = BLOCO_ORDEM.indexOf(b.bloco);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
 });
 
 const ultimoEnvioPorBloco = computed(() => {
@@ -155,6 +162,3 @@ onMounted(async () => {
     <FocohNavegacaoPaciente />
   </section>
 </template>
-
-
-

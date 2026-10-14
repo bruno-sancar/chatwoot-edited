@@ -17,27 +17,6 @@ const route = useRoute();
 const router = useRouter();
 const pacienteId = route.params.pacienteId;
 
-const abrirAvaliacaoRisco = () => {
-  router.push({
-    name: 'kanban_clinico_avaliacao_risco',
-    params: { accountId: route.params.accountId, pacienteId },
-  });
-};
-
-const abrirHistorico = () => {
-  router.push({
-    name: 'kanban_clinico_historico_paciente',
-    params: { accountId: route.params.accountId, pacienteId },
-  });
-};
-
-const abrirLaudoSemanal = () => {
-  router.push({
-    name: 'kanban_clinico_laudo_semanal',
-    params: { accountId: route.params.accountId, pacienteId },
-  });
-};
-
 const TRANSICAO_POR_FASE = {
   fase1_autocritica: 'f1_f2',
   fase2_disciplina: 'f2_f3',
@@ -155,7 +134,7 @@ onMounted(async () => {
       </div>
 
       <template v-else-if="paciente">
-        <header class="flex items-start justify-between gap-4">
+        <header class="flex items-start gap-4">
           <div>
             <h1 class="text-heading-1 text-n-slate-12">
               {{ t('FOCOH_KANBAN.PROGRESSAO.TITULO') }}
@@ -163,29 +142,6 @@ onMounted(async () => {
             <p class="mt-1 text-body-main text-n-slate-11">
               {{ paciente.nome }}<template v-if="transicao"> · {{ transicao }}</template>
             </p>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <Button
-              :label="t('FOCOH_KANBAN.LAUDO.TITULO')"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-file-text"
-              @click="abrirLaudoSemanal"
-            />
-            <Button
-              :label="t('FOCOH_KANBAN.HISTORICO.TITULO')"
-              variant="ghost"
-              size="sm"
-              icon="i-lucide-history"
-              @click="abrirHistorico"
-            />
-            <Button
-              :label="t('FOCOH_KANBAN.RISCO.TITULO')"
-              variant="outline"
-              size="sm"
-              icon="i-lucide-shield-alert"
-              @click="abrirAvaliacaoRisco"
-            />
           </div>
         </header>
 
@@ -228,6 +184,7 @@ onMounted(async () => {
     <FocohNavegacaoPaciente />
   </section>
 </template>
+
 
 
 

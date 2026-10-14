@@ -160,7 +160,7 @@ onMounted(carregarCampos);
 </script>
 
 <template>
-  <div class="flex flex-col h-full overflow-hidden bg-n-background">
+  <div class="flex flex-col w-full h-full overflow-hidden bg-n-background">
     <!-- Header -->
     <div class="flex items-center gap-3 px-6 py-4 border-b border-n-weak">
       <i class="i-lucide-settings text-xl text-n-slate-11" />
