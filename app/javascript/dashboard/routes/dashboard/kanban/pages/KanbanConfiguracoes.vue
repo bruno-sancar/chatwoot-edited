@@ -12,7 +12,6 @@ const FORMULARIOS = [
   { id: 'progressao_fase',   label: 'Progressão de Fase' },
   { id: 'avaliacao_risco',   label: 'Avaliação de Risco' },
   { id: 'evolucao_semanal',  label: 'Laudo Semanal' },
-  { id: 'ficha_admissao',    label: 'Ficha de Admissão' },
 ];
 
 const ABAS = [
