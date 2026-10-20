@@ -9,6 +9,7 @@ import HistoricoPaciente from './pages/HistoricoPaciente.vue';
 import LaudoSemanalForm from './pages/LaudoSemanalForm.vue';
 import FichaAdmissaoForm from './pages/FichaAdmissaoForm.vue';
 import KanbanConfiguracoes from './pages/KanbanConfiguracoes.vue';
+import SuasAtividades from './pages/SuasAtividades.vue';
 
 const PATIENT_META = { permissions: [...ROLES, ...CONVERSATION_PERMISSIONS] };
 
@@ -67,6 +68,12 @@ export const routes = [
     path: frontendURL('accounts/:accountId/kanban/configuracoes'),
     name: 'kanban_clinico_configuracoes',
     component: KanbanConfiguracoes,
+    meta: PATIENT_META,
+  },
+  {
+    path: frontendURL('accounts/:accountId/kanban/atividades'),
+    name: 'kanban_clinico_atividades',
+    component: SuasAtividades,
     meta: PATIENT_META,
   },
 ];

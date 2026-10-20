@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
@@ -18,6 +18,15 @@ const TIPO_FORMULARIO_LABEL = {
   ficha_admissao:   'Ficha de Admissão',
 };
 
+const FILTROS_TIPO = [
+  { id: null,               label: 'Todos' },
+  { id: 'admissao',         label: 'Admissão' },
+  { id: 'progressao_fase',  label: 'Progressão' },
+  { id: 'evolucao_semanal', label: 'Laudo Semanal' },
+  { id: 'avaliacao_risco',  label: 'Risco' },
+  { id: 'ficha_admissao',   label: 'Ficha' },
+];
+
 const BLOCO_LABEL = {
   clinico:     'Clínico',
   terapeutico: 'Terapêutico',
@@ -31,8 +40,14 @@ const pacienteId = route.params.pacienteId;
 
 const paciente = ref(null);
 const abertos = ref(new Set());
+const filtroTipo = ref(null);
 
 const { historico, isLoadingHistorico, erroHistorico, carregarHistorico } = useFocohFormularios();
+
+const historicoFiltrado = computed(() => {
+  if (!filtroTipo.value) return historico.value;
+  return historico.value.filter(e => e.formulario_tipo === filtroTipo.value);
+});
 
 const alternarAberto = id => {
   const proximo = new Set(abertos.value);
@@ -71,6 +86,22 @@ onMounted(async () => {
         </p>
       </header>
 
+      <!-- Filtro por tipo -->
+      <div v-if="!isLoadingHistorico && historico.length" class="flex flex-wrap gap-1.5">
+        <button
+          v-for="f in FILTROS_TIPO"
+          :key="String(f.id)"
+          type="button"
+          class="px-3 py-1 text-label-small rounded-full border transition-colors"
+          :class="filtroTipo === f.id
+            ? 'bg-n-brand text-white border-n-brand'
+            : 'border-n-weak text-n-slate-11 hover:border-n-slate-9 hover:text-n-slate-12'"
+          @click="filtroTipo = f.id"
+        >
+          {{ f.label }}
+        </button>
+      </div>
+
       <div v-if="isLoadingHistorico" class="flex items-center justify-center flex-1">
         <Spinner :size="24" />
       </div>
@@ -79,13 +110,13 @@ onMounted(async () => {
         {{ erroHistorico.message }}
       </p>
 
-      <p v-else-if="!historico.length" class="text-body-main text-n-slate-11">
-        {{ t('FOCOH_KANBAN.HISTORICO.VAZIO') }}
+      <p v-else-if="!historicoFiltrado.length" class="text-body-main text-n-slate-11">
+        {{ historico.length ? 'Nenhum registro para este filtro.' : t('FOCOH_KANBAN.HISTORICO.VAZIO') }}
       </p>
 
       <ol v-else class="flex flex-col gap-3">
         <li
-          v-for="envio in historico"
+          v-for="envio in historicoFiltrado"
           :key="envio.id"
           class="border rounded-xl border-n-weak bg-n-solid-1"
         >
