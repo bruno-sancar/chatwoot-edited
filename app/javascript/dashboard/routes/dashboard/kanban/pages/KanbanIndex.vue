@@ -106,6 +106,13 @@ const abrirAdmissao = () => {
   });
 };
 
+const abrirAtividades = () => {
+  router.push({
+    name: 'kanban_clinico_atividades',
+    params: { accountId: route.params.accountId },
+  });
+};
+
 onMounted(() => {
   if (route.query.programa) {
     const p = PROGRAMAS.find(pr => pr.id === route.query.programa);
@@ -163,6 +170,14 @@ onMounted(() => {
           />
         </div>
 
+        <Button
+          label="Atividades"
+          icon="i-lucide-list-checks"
+          size="sm"
+          variant="outline"
+          color-scheme="secondary"
+          @click="abrirAtividades"
+        />
         <Button
           :label="t('FOCOH_KANBAN.ADMISSAO.CRIAR_PACIENTE')"
           icon="i-lucide-plus"
