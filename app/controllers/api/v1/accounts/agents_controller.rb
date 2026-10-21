@@ -24,6 +24,10 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
 
   def update
     @agent.update!(agent_params.slice(:name).compact)
+    if agent_params[:custom_attributes].present?
+      @agent.custom_attributes = @agent.custom_attributes.to_h.merge(agent_params[:custom_attributes].to_h)
+      @agent.save!
+    end
     @agent.current_account_user.update!(agent_params.slice(*account_user_attributes).compact)
   end
 
@@ -60,7 +64,7 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   end
 
   def allowed_agent_params
-    [:name, :email, :role, :availability, :auto_offline]
+    [:name, :email, :role, :availability, :auto_offline, custom_attributes: {}]
   end
 
   def agent_params
