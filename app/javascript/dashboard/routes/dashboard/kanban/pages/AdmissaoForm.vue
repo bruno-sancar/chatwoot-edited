@@ -227,29 +227,39 @@ onMounted(() => {
               <label class="text-label-small font-medium text-n-slate-11">
                 {{ t('FOCOH_KANBAN.ADMISSAO.MEDICO_RESPONSAVEL') }}
               </label>
-              <select
-                v-model="medicoSelecionadoId"
-                class="w-full rounded-lg border border-n-strong bg-n-surface-1 px-3 py-2 text-body-sm text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
-              >
-                <option :value="null">{{ t('FOCOH_KANBAN.ADMISSAO.PROFISSIONAL_OPCIONAL') }}</option>
-                <option v-for="m in medicos" :key="m.id" :value="m.id">
-                  {{ m.name }}
-                </option>
-              </select>
+              <div class="relative">
+                <select
+                  v-model="medicoSelecionadoId"
+                  class="w-full appearance-none rounded-lg border border-n-strong bg-n-surface-1 px-3 py-2 pr-8 text-body-sm text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+                >
+                  <option :value="null">{{ t('FOCOH_KANBAN.ADMISSAO.PROFISSIONAL_OPCIONAL') }}</option>
+                  <option v-for="m in medicos" :key="m.id" :value="m.id">
+                    {{ m.name }}
+                  </option>
+                </select>
+                <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-n-slate-10">
+                  <span class="i-lucide-chevron-down size-4" />
+                </span>
+              </div>
             </div>
             <div class="flex flex-col gap-1.5">
               <label class="text-label-small font-medium text-n-slate-11">
                 {{ t('FOCOH_KANBAN.ADMISSAO.PSICOLOGO_GERENTE_CASO') }}
               </label>
-              <select
-                v-model="psicologoSelecionadoId"
-                class="w-full rounded-lg border border-n-strong bg-n-surface-1 px-3 py-2 text-body-sm text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
-              >
-                <option :value="null">{{ t('FOCOH_KANBAN.ADMISSAO.PROFISSIONAL_OPCIONAL') }}</option>
-                <option v-for="p in psicologos" :key="p.id" :value="p.id">
-                  {{ p.name }}
-                </option>
-              </select>
+              <div class="relative">
+                <select
+                  v-model="psicologoSelecionadoId"
+                  class="w-full appearance-none rounded-lg border border-n-strong bg-n-surface-1 px-3 py-2 pr-8 text-body-sm text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+                >
+                  <option :value="null">{{ t('FOCOH_KANBAN.ADMISSAO.PROFISSIONAL_OPCIONAL') }}</option>
+                  <option v-for="p in psicologos" :key="p.id" :value="p.id">
+                    {{ p.name }}
+                  </option>
+                </select>
+                <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-n-slate-10">
+                  <span class="i-lucide-chevron-down size-4" />
+                </span>
+              </div>
             </div>
           </div>
           <p class="text-label-small text-n-slate-10">
@@ -318,9 +328,6 @@ onMounted(() => {
             </ul>
           </div>
 
-          <p class="text-label-small text-n-slate-10">
-            {{ t('FOCOH_KANBAN.ADMISSAO.ABA_A') }}
-          </p>
         </div>
 
         <!-- Bloco do formulário de admissão -->
