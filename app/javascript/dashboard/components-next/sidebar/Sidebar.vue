@@ -605,6 +605,7 @@ const menuItems = computed(() => {
           activeOn: [
             'kanban_clinico_index',
             'kanban_clinico_admissao',
+            'kanban_clinico_atividades',
             'kanban_clinico_progressao_fase',
             'kanban_clinico_avaliacao_risco',
             'kanban_clinico_laudo_semanal',
