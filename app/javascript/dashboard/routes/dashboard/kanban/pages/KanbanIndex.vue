@@ -166,7 +166,7 @@ onMounted(() => {
             v-model="termoBusca"
             type="text"
             :placeholder="t('KANBAN.BUSCA_PACIENTE')"
-            class="pl-8 pr-3 py-1.5 text-body-sm rounded-lg bg-n-surface-2 border border-n-weak text-n-slate-12 placeholder:text-n-slate-10 focus:outline-none focus:ring-2 focus:ring-n-brand w-48"
+            class="pl-9 pr-3 py-1.5 text-body-sm rounded-lg bg-n-surface-2 border border-n-weak text-n-slate-12 placeholder:text-n-slate-10 focus:outline-none focus:ring-2 focus:ring-n-brand w-48"
           />
         </div>
 
