@@ -1,12 +1,21 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
+
+// Papel → coluna de atribuição no Supabase
+const PAPEL_COLUNA = {
+  medico_psiquiatra: 'medico_responsavel_chatwoot_id',
+  psicologo: 'psicologo_gerente_caso_chatwoot_id',
+  coordenacao_tecnica: 'psicologo_gerente_caso_chatwoot_id',
+};
 
 // --- Estado ---
 const isLoading = ref(true);
@@ -108,12 +117,21 @@ const carregarAtividades = async () => {
 
     const semana = semanaAtualRef();
 
-    // 1. Todos os pacientes não-arquivados
-    const { data: pacientes, error: errPac } = await supabase
+    // Determina coluna de filtro com base no papel (primeiro papel com coluna mapeada)
+    const currentAgentId = store.getters['auth/getCurrentUser']?.id ?? null;
+    const papelComColuna = roles.find(r => PAPEL_COLUNA[r]);
+    const colunaFiltro = papelComColuna ? PAPEL_COLUNA[papelComColuna] : null;
+
+    // 1. Pacientes não-arquivados, filtrados por profissional responsável quando aplicável
+    let query = supabase
       .from('pacientes')
       .select('id, nome, fase, programa')
       .eq('arquivado', false)
       .order('nome');
+    if (colunaFiltro && currentAgentId) {
+      query = query.eq(colunaFiltro, currentAgentId);
+    }
+    const { data: pacientes, error: errPac } = await query;
     if (errPac) throw errPac;
 
     // 2. Laudos já entregues esta semana para todos os tipos do profissional
@@ -255,7 +273,7 @@ onMounted(carregarAtividades);
         <!-- Nota sobre atribuição -->
         <div class="mb-5 p-3 rounded-lg bg-n-surface-2 border border-n-weak text-label-small text-n-slate-11 flex gap-2">
           <span class="i-lucide-info w-4 h-4 shrink-0 mt-0.5 text-n-slate-10" />
-          <span>Exibindo todos os pacientes sem laudo entregue para o seu papel. A atribuição individual de pacientes por profissional será configurada na importação.</span>
+          <span>Exibindo pacientes sob sua responsabilidade sem laudo entregue esta semana.</span>
         </div>
 
         <ul class="flex flex-col gap-2">
