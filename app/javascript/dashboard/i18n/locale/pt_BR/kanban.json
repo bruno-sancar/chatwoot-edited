@@ -54,7 +54,12 @@
       "BLOCO_HISTORICO_CLINICO": "1 — Histórico Clínico",
       "BLOCO_REDE_APOIO": "2 — Rede de Apoio e Contatos",
       "BLOCO_ENVIADO": "Bloco registrado na ficha.",
-      "CRIADO": "Paciente admitido. O card já aparece na coluna de Admissão."
+      "CRIADO": "Paciente admitido. O card já aparece na coluna de Admissão.",
+      "ATRIBUICAO_PROFISSIONAL": "Atribuição Profissional",
+      "MEDICO_RESPONSAVEL": "Médico Responsável",
+      "PSICOLOGO_GERENTE_CASO": "Psicólogo Gerente de Caso",
+      "PROFISSIONAL_OPCIONAL": "Não definido (opcional)",
+      "ATRIBUICAO_OPCIONAL_DICA": "Pode ser alterado posteriormente no prontuário do paciente."
     },
     "CAMPO": {
       "SELECIONE": "Selecione",

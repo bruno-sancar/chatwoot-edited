@@ -12,6 +12,9 @@ import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 import { PROGRAMAS } from '../constants';
 
+const TEAM_MEDICOS = 9;
+const TEAM_PSICOLOGOS = 12;
+
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -23,6 +26,11 @@ const { definicoes, isLoadingDefinicoes, carregarDefinicoes } = useFocohFormular
 const isSubmitting = ref(false);
 
 const programaSelecionado = ref('jornada_superacao');
+
+const medicoSelecionadoId = ref(null);
+const psicologoSelecionadoId = ref(null);
+const medicos = computed(() => store.getters['teamMembers/getTeamMembers'](TEAM_MEDICOS));
+const psicologos = computed(() => store.getters['teamMembers/getTeamMembers'](TEAM_PSICOLOGOS));
 
 const contatoSelecionado = ref(null);
 const textoBusca = ref('');
@@ -112,9 +120,20 @@ const onEnviar = async ({ respostas }) => {
   isSubmitting.value = true;
   try {
     await obterFocohToken();
+    const insertData = {
+      nome,
+      programa: programaSelecionado.value,
+      dados_cadastrais: dadosCadastrais,
+    };
+    if (medicoSelecionadoId.value) {
+      insertData.medico_responsavel_chatwoot_id = medicoSelecionadoId.value;
+    }
+    if (psicologoSelecionadoId.value) {
+      insertData.psicologo_gerente_caso_chatwoot_id = psicologoSelecionadoId.value;
+    }
     const { data: pacienteCriado, error } = await supabase
       .from('pacientes')
-      .insert({ nome, programa: programaSelecionado.value, dados_cadastrais: dadosCadastrais })
+      .insert(insertData)
       .select('id')
       .single();
     if (error) throw error;
@@ -141,6 +160,8 @@ const onEnviar = async ({ respostas }) => {
 onMounted(() => {
   carregarDefinicoes('admissao', { etapa: 'aba_a' });
   carregarContatoVinculado();
+  store.dispatch('teamMembers/get', { teamId: TEAM_MEDICOS });
+  store.dispatch('teamMembers/get', { teamId: TEAM_PSICOLOGOS });
 });
 </script>
 
@@ -194,6 +215,46 @@ onMounted(() => {
               {{ t(`KANBAN.${prog.labelKey}`) }}
             </button>
           </div>
+        </div>
+
+        <!-- Atribuição profissional -->
+        <div class="flex flex-col gap-4 p-4 rounded-xl border border-n-strong bg-n-surface-2">
+          <h2 class="text-heading-3 text-n-slate-12">
+            {{ t('FOCOH_KANBAN.ADMISSAO.ATRIBUICAO_PROFISSIONAL') }}
+          </h2>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-label-small font-medium text-n-slate-11">
+                {{ t('FOCOH_KANBAN.ADMISSAO.MEDICO_RESPONSAVEL') }}
+              </label>
+              <select
+                v-model="medicoSelecionadoId"
+                class="w-full rounded-lg border border-n-strong bg-n-surface-1 px-3 py-2 text-body-sm text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+              >
+                <option :value="null">{{ t('FOCOH_KANBAN.ADMISSAO.PROFISSIONAL_OPCIONAL') }}</option>
+                <option v-for="m in medicos" :key="m.id" :value="m.id">
+                  {{ m.name }}
+                </option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-label-small font-medium text-n-slate-11">
+                {{ t('FOCOH_KANBAN.ADMISSAO.PSICOLOGO_GERENTE_CASO') }}
+              </label>
+              <select
+                v-model="psicologoSelecionadoId"
+                class="w-full rounded-lg border border-n-strong bg-n-surface-1 px-3 py-2 text-body-sm text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+              >
+                <option :value="null">{{ t('FOCOH_KANBAN.ADMISSAO.PROFISSIONAL_OPCIONAL') }}</option>
+                <option v-for="p in psicologos" :key="p.id" :value="p.id">
+                  {{ p.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <p class="text-label-small text-n-slate-10">
+            {{ t('FOCOH_KANBAN.ADMISSAO.ATRIBUICAO_OPCIONAL_DICA') }}
+          </p>
         </div>
 
         <!-- Seleção/pré-preenchimento de contato Chatwoot -->
