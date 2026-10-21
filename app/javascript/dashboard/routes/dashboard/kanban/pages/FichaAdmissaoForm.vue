@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
@@ -24,16 +24,25 @@ const BLOCO_TITULO = {
 const paciente = ref(null);
 const isLoadingPaciente = ref(true);
 const blocoEnviadoNestaVisita = ref(new Set());
+const salvandoIdentificacao = ref(false);
 
+// Composable para aba_bc (histórico clínico + rede de apoio) — grava em respostas_formulario
 const {
-  definicoes,
-  isLoadingDefinicoes,
-  carregarDefinicoes,
+  definicoes: definicoesBC,
+  isLoadingDefinicoes: isLoadingBC,
+  carregarDefinicoes: carregarBC,
   definicoesPorBloco,
   isSubmitting,
   enviarResposta,
   historico,
   carregarHistorico,
+} = useFocohFormularios();
+
+// Composable separado para aba_a (identificação) — dados_cadastrais do paciente
+const {
+  definicoes: definicoesA,
+  isLoadingDefinicoes: isLoadingA,
+  carregarDefinicoes: carregarA,
 } = useFocohFormularios();
 
 const blocos = computed(() => {
@@ -53,6 +62,9 @@ const ultimoEnvioPorBloco = computed(() => {
   return mapa;
 });
 
+// Valores da Identificação pré-preenchidos com dados_cadastrais do paciente
+const valoresIdentificacao = computed(() => paciente.value?.dados_cadastrais ?? {});
+
 const carregarPaciente = async () => {
   const supabase = getFocohSupabaseClient();
   if (!supabase) return;
@@ -61,12 +73,38 @@ const carregarPaciente = async () => {
     await obterFocohToken();
     const { data } = await supabase
       .from('pacientes')
-      .select('id, nome, programa')
+      .select('id, nome, programa, dados_cadastrais')
       .eq('id', pacienteId)
       .single();
     paciente.value = data;
   } finally {
     isLoadingPaciente.value = false;
+  }
+};
+
+// Salva edições de identificação de volta em pacientes.dados_cadastrais
+const onEnviarIdentificacao = async ({ respostas }) => {
+  const supabase = getFocohSupabaseClient();
+  if (!supabase) return;
+  salvandoIdentificacao.value = true;
+  try {
+    const porChave = Object.fromEntries(
+      respostas.map(({ definicao, valor }) => [definicao.campo_chave, valor])
+    );
+    const { nome, ...dadosCadastrais } = porChave;
+    const updateData = { dados_cadastrais: dadosCadastrais };
+    if (nome) updateData.nome = nome;
+    const { error } = await supabase
+      .from('pacientes')
+      .update(updateData)
+      .eq('id', pacienteId);
+    if (error) throw error;
+    paciente.value = { ...paciente.value, nome: nome ?? paciente.value.nome, dados_cadastrais: dadosCadastrais };
+    useAlert(t('FOCOH_KANBAN.ADMISSAO.BLOCO_ENVIADO'));
+  } catch (err) {
+    useAlert(err?.message ?? t('FOCOH_KANBAN.BLOCO.ENVIAR'));
+  } finally {
+    salvandoIdentificacao.value = false;
   }
 };
 
@@ -92,11 +130,11 @@ const onEnviarBloco = async (bloco, { respostas }) => {
 
 onMounted(async () => {
   await carregarPaciente();
-  await carregarDefinicoes('admissao', {
-    programa: paciente.value?.programa,
-    etapa: 'aba_bc',
-  });
-  await carregarHistorico(pacienteId);
+  await Promise.all([
+    carregarA('admissao', { etapa: 'aba_a' }),
+    carregarBC('admissao', { programa: paciente.value?.programa, etapa: 'aba_bc' }),
+    carregarHistorico(pacienteId),
+  ]);
 });
 </script>
 
@@ -117,11 +155,22 @@ onMounted(async () => {
           </p>
         </header>
 
-        <div v-if="isLoadingDefinicoes" class="flex items-center justify-center flex-1">
+        <div v-if="isLoadingA || isLoadingBC" class="flex items-center justify-center flex-1">
           <Spinner :size="24" />
         </div>
 
         <div v-else class="flex flex-col gap-4">
+          <!-- Seção A: Identificação — pré-preenchida com dados_cadastrais -->
+          <FocohBlocoFormulario
+            v-if="definicoesA.length"
+            :titulo="t('FOCOH_KANBAN.ADMISSAO.ABA_A')"
+            :definicoes="definicoesA"
+            :valores-iniciais="valoresIdentificacao"
+            :is-submitting="salvandoIdentificacao"
+            @enviar="onEnviarIdentificacao"
+          />
+
+          <!-- Seções B/C: Histórico Clínico, Rede de Apoio -->
           <FocohBlocoFormulario
             v-for="{ bloco, defs } in blocos"
             :key="bloco"
@@ -138,6 +187,3 @@ onMounted(async () => {
     <FocohNavegacaoPaciente />
   </section>
 </template>
-
-
-
