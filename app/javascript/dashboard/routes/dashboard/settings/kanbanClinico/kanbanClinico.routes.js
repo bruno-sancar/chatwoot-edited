@@ -19,12 +19,12 @@ export default {
         {
           path: '',
           redirect: to => {
-            return { name: 'kanban_clinico_configuracoes', params: to.params };
+            return { name: 'settings_kanban_clinico', params: to.params };
           },
         },
         {
           path: 'configuracoes',
-          name: 'kanban_clinico_configuracoes',
+          name: 'settings_kanban_clinico',
           component: KanbanClinicoHome,
           meta: {
             permissions: ['administrator'],
