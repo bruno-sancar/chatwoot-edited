@@ -11,9 +11,12 @@ const router = useRouter();
 // --- Estado ---
 const isLoading = ref(true);
 const erro = ref(null);
-const papelAtual = ref(null);
+const papeisAtuais = ref([]);
 const nomeAtual = ref(null);
 const atividades = ref([]);
+
+// Papel principal (primeiro) — mantido para compatibilidade com template.
+const papelAtual = computed(() => papeisAtuais.value[0] ?? null);
 
 // --- Papel → tipo de laudo ---
 const PAPEL_LAUDO = {
@@ -50,11 +53,20 @@ const FASE_LABEL = {
   alta_transicao:    'Alta Pós-Detox',
 };
 
-const tipoLaudo = computed(() => PAPEL_LAUDO[papelAtual.value] ?? null);
-const laudoLabel = computed(() => tipoLaudo.value ? LAUDO_LABEL[tipoLaudo.value] : null);
+// Tipos de laudo únicos derivados de todos os papéis ativos.
+const tiposLaudo = computed(() =>
+  [...new Set(papeisAtuais.value.map(r => PAPEL_LAUDO[r]).filter(Boolean))]
+);
+const tipoLaudo = computed(() => tiposLaudo.value[0] ?? null);
+const laudoLabel = computed(() => {
+  const labels = tiposLaudo.value.map(t => LAUDO_LABEL[t]).filter(Boolean);
+  return labels.length ? labels.join(', ') : null;
+});
 
 const semDeAtividades = computed(() =>
-  !tipoLaudo.value && ['recepcao', 'enfermeiro_rt', 'gerente_familias'].includes(papelAtual.value)
+  papeisAtuais.value.length > 0 &&
+  tiposLaudo.value.length === 0 &&
+  papeisAtuais.value.every(r => ['recepcao', 'enfermeiro_rt', 'gerente_familias'].includes(r))
 );
 
 // Segunda-feira da semana atual (ISO: seg a dom)
@@ -85,11 +97,14 @@ const carregarAtividades = async () => {
   try {
     const token = await obterFocohToken();
     const payload = decodeJwtPayload(token);
-    papelAtual.value = payload?.app_metadata?.role ?? null;
+    // Lê `roles` (array, FOCO-105) com fallback para `role` (string legado).
+    const roles = payload?.app_metadata?.roles ??
+      (payload?.app_metadata?.role ? [payload.app_metadata.role] : []);
+    papeisAtuais.value = roles;
     nomeAtual.value = payload?.user_metadata?.name ?? null;
 
-    const tipo = PAPEL_LAUDO[papelAtual.value];
-    if (!tipo) { isLoading.value = false; return; }
+    const tipos = [...new Set(roles.map(r => PAPEL_LAUDO[r]).filter(Boolean))];
+    if (!tipos.length) { isLoading.value = false; return; }
 
     const semana = semanaAtualRef();
 
@@ -101,29 +116,39 @@ const carregarAtividades = async () => {
       .order('nome');
     if (errPac) throw errPac;
 
-    // 2. Laudos já entregues esta semana para este tipo
+    // 2. Laudos já entregues esta semana para todos os tipos do profissional
     const ids = (pacientes ?? []).map(p => p.id);
     let laudosEntregues = [];
     if (ids.length) {
       const { data: laudos, error: errL } = await supabase
         .from('laudos_semanais')
-        .select('paciente_id, aprovado')
-        .eq('tipo', tipo)
+        .select('paciente_id, tipo, aprovado')
+        .in('tipo', tipos)
         .eq('semana_ref', semana)
         .in('paciente_id', ids);
       if (errL) throw errL;
       laudosEntregues = laudos ?? [];
     }
 
-    const entreguesMap = Object.fromEntries(laudosEntregues.map(l => [l.paciente_id, l]));
+    // entreguesMap[paciente_id][tipo] = laudo
+    const entreguesMap = {};
+    for (const l of laudosEntregues) {
+      if (!entreguesMap[l.paciente_id]) entreguesMap[l.paciente_id] = {};
+      entreguesMap[l.paciente_id][l.tipo] = l;
+    }
 
     atividades.value = (pacientes ?? [])
-      .map(p => ({
-        ...p,
-        laudoStatus: entreguesMap[p.id]
-          ? (entreguesMap[p.id].aprovado ? 'aprovado' : 'pendente')
-          : 'ausente',
-      }))
+      .map(p => {
+        const porTipo = entreguesMap[p.id] ?? {};
+        const todosAprovados = tipos.every(t => porTipo[t]?.aprovado);
+        const algumEntregue  = tipos.some(t => porTipo[t]);
+        return {
+          ...p,
+          laudoStatus: todosAprovados ? 'aprovado'
+            : algumEntregue ? 'pendente'
+            : 'ausente',
+        };
+      })
       .filter(p => p.laudoStatus !== 'aprovado');
   } catch (e) {
     erro.value = e.message ?? 'Erro ao carregar atividades.';
@@ -164,8 +189,8 @@ onMounted(carregarAtividades);
       <div class="flex items-center justify-between gap-4">
         <div>
           <h1 class="text-heading-1 text-n-slate-12">Suas Atividades</h1>
-          <p v-if="papelAtual" class="mt-1 text-body-main text-n-slate-11">
-            {{ PAPEL_LABEL[papelAtual] ?? papelAtual }}
+          <p v-if="papeisAtuais.length" class="mt-1 text-body-main text-n-slate-11">
+            {{ papeisAtuais.map(r => PAPEL_LABEL[r] ?? r).join(', ') }}
             <span v-if="nomeAtual"> · {{ nomeAtual }}</span>
           </p>
         </div>
@@ -200,7 +225,7 @@ onMounted(carregarAtividades);
       </div>
 
       <!-- Papel sem atribuição (token sem papel) -->
-      <div v-else-if="!papelAtual" class="p-4 rounded-xl bg-n-amber-2 border border-n-amber-6 text-body-main text-n-amber-11">
+      <div v-else-if="!papeisAtuais.length" class="p-4 rounded-xl bg-n-amber-2 border border-n-amber-6 text-body-main text-n-amber-11">
         Papel clínico não identificado. Verifique se o atributo <code>focoh_clinical_role</code> está configurado para o seu usuário.
       </div>
 
