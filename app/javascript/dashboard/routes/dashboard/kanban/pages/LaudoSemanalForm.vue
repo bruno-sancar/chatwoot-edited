@@ -43,15 +43,18 @@ const {
 } = useFocohFormularios();
 
 const blocos = computed(() => {
-  const grupos = definicoesPorBloco();
+  const ordemMap = Object.fromEntries(BLOCO_ORDEM.map((b, i) => [b, i]));
+  const grupos = new Map();
+  [...definicoes.value]
+    .sort((a, b) => (ordemMap[a.bloco] ?? 99) - (ordemMap[b.bloco] ?? 99))
+    .forEach(def => {
+      const chave = def.bloco ?? '__geral__';
+      if (!grupos.has(chave)) grupos.set(chave, []);
+      grupos.get(chave).push(def);
+    });
   return Array.from(grupos.entries())
     .filter(([bloco]) => bloco !== '__geral__')
-    .map(([bloco, defs]) => ({ bloco, defs }))
-    .sort((a, b) => {
-      const ia = BLOCO_ORDEM.indexOf(a.bloco);
-      const ib = BLOCO_ORDEM.indexOf(b.bloco);
-      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-    });
+    .map(([bloco, defs]) => ({ bloco, defs }));
 });
 
 const ultimoEnvioPorBloco = computed(() => {

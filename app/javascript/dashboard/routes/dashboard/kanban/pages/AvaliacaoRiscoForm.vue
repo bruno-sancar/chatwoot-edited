@@ -1,7 +1,8 @@
 ﻿<script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useStore } from 'vuex';import { useI18n } from 'vue-i18n';
+import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -11,6 +12,7 @@ import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
 const { t } = useI18n();
+const store = useStore();
 const currentUserName = () => store.getters['auth/getCurrentUser']?.name ?? '';
 const route = useRoute();
 const router = useRouter();
