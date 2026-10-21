@@ -6,6 +6,9 @@ import { useI18n } from 'vue-i18n';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
+const TEAM_MEDICOS = 9;
+const TEAM_PSICOLOGOS = 12;
+
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -44,6 +47,21 @@ const RISCO_COR = {
   moderado: 'bg-n-amber-3 text-n-amber-11',
   alto: 'bg-n-ruby-3 text-n-ruby-11',
 };
+
+const medicos = computed(() => store.getters['teamMembers/getTeamMembers'](TEAM_MEDICOS));
+const psicologos = computed(() => store.getters['teamMembers/getTeamMembers'](TEAM_PSICOLOGOS));
+
+const medicoNome = computed(() => {
+  const id = paciente.value?.medico_responsavel_chatwoot_id;
+  if (!id) return null;
+  return medicos.value.find(m => m.id === id)?.name ?? null;
+});
+
+const psicologoNome = computed(() => {
+  const id = paciente.value?.psicologo_gerente_caso_chatwoot_id;
+  if (!id) return null;
+  return psicologos.value.find(p => p.id === id)?.name ?? null;
+});
 
 const diasInternado = computed(() => {
   if (!paciente.value?.data_admissao) return null;
@@ -100,7 +118,7 @@ onMounted(async () => {
   const [{ data: pac }, { data: riscos }] = await Promise.all([
     supabase
       .from('pacientes')
-      .select('id, nome, fase, programa, data_admissao, chatwoot_conversation_id')
+      .select('id, nome, fase, programa, data_admissao, chatwoot_conversation_id, medico_responsavel_chatwoot_id, psicologo_gerente_caso_chatwoot_id')
       .eq('id', pacienteId)
       .single(),
     supabase
@@ -115,6 +133,9 @@ onMounted(async () => {
   paciente.value = pac;
   ultimaAvaliacaoRisco.value = riscos?.[0] ?? null;
   isLoading.value = false;
+
+  store.dispatch('teamMembers/get', { teamId: TEAM_MEDICOS });
+  store.dispatch('teamMembers/get', { teamId: TEAM_PSICOLOGOS });
 
   if (pac?.chatwoot_conversation_id) {
     try {
@@ -183,6 +204,18 @@ onMounted(async () => {
           <p v-if="diasInternado !== null" class="text-label-small text-n-slate-10">
             {{ t('KANBAN.CARD.DIAS_INTERNADO', diasInternado, { n: diasInternado }) }}
           </p>
+
+          <!-- Profissionais responsáveis -->
+          <div v-if="medicoNome || psicologoNome" class="flex flex-col gap-1 pt-1">
+            <div v-if="medicoNome" class="flex items-center gap-1.5 text-label-small text-n-slate-11">
+              <span class="i-lucide-stethoscope size-3 text-n-slate-9 shrink-0" />
+              <span class="truncate">{{ medicoNome }}</span>
+            </div>
+            <div v-if="psicologoNome" class="flex items-center gap-1.5 text-label-small text-n-slate-11">
+              <span class="i-lucide-brain size-3 text-n-slate-9 shrink-0" />
+              <span class="truncate">{{ psicologoNome }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Navigation -->

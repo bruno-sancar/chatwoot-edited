@@ -19,6 +19,9 @@ const route = useRoute();
 const router = useRouter();
 const pacienteId = route.params.pacienteId;
 
+const TEAM_MEDICOS = 9;
+const TEAM_PSICOLOGOS = 12;
+
 const BLOCO_TITULO = {
   clinico:     'FOCOH_KANBAN.LAUDO.BLOCO_CLINICO',
   terapeutico: 'FOCOH_KANBAN.LAUDO.BLOCO_TERAPEUTICO',
@@ -30,6 +33,26 @@ const BLOCO_ORDEM = ['clinico', 'terapeutico', 'disciplinar'];
 const paciente = ref(null);
 const isLoadingPaciente = ref(true);
 const blocoEnviadoNestaVisita = ref(new Set());
+
+const medicos = computed(() => store.getters['teamMembers/getTeamMembers'](TEAM_MEDICOS));
+const psicologos = computed(() => store.getters['teamMembers/getTeamMembers'](TEAM_PSICOLOGOS));
+
+const medicoNome = computed(() => {
+  const id = paciente.value?.medico_responsavel_chatwoot_id;
+  return id ? (medicos.value.find(m => m.id === id)?.name ?? null) : null;
+});
+
+const psicologoNome = computed(() => {
+  const id = paciente.value?.psicologo_gerente_caso_chatwoot_id;
+  return id ? (psicologos.value.find(p => p.id === id)?.name ?? null) : null;
+});
+
+// Responsável por bloco de laudo
+const responsavelBloco = computed(() => ({
+  clinico:     medicoNome.value,
+  terapeutico: psicologoNome.value,
+  disciplinar: null,
+}));
 
 const {
   definicoes,
@@ -75,7 +98,7 @@ const carregarPaciente = async () => {
     await obterFocohToken();
     const { data, error } = await supabase
       .from('pacientes')
-      .select('id, nome, programa')
+      .select('id, nome, programa, medico_responsavel_chatwoot_id, psicologo_gerente_caso_chatwoot_id')
       .eq('id', pacienteId)
       .single();
     if (error) throw error;
@@ -116,6 +139,8 @@ onMounted(async () => {
   await carregarPaciente();
   await carregarDefinicoes('evolucao_semanal', { programa: paciente.value?.programa });
   await carregarHistorico(pacienteId);
+  store.dispatch('teamMembers/get', { teamId: TEAM_MEDICOS });
+  store.dispatch('teamMembers/get', { teamId: TEAM_PSICOLOGOS });
 });
 </script>
 
@@ -150,17 +175,24 @@ onMounted(async () => {
         </div>
 
         <div v-else class="flex flex-col gap-4">
-          <FocohBlocoFormulario
-            v-for="{ bloco, defs } in blocos"
-            :key="bloco"
-            :titulo="t(BLOCO_TITULO[bloco] ?? bloco)"
-            :definicoes="defs"
-            com-decisao
-            :is-submitting="isSubmitting"
-            :ultimo-envio="ultimoEnvioPorBloco[bloco]"
-            :enviado="blocoEnviadoNestaVisita.has(bloco)"
-            @enviar="payload => onEnviarBloco(bloco, payload)"
-          />
+          <div v-for="{ bloco, defs } in blocos" :key="bloco" class="flex flex-col gap-1">
+            <FocohBlocoFormulario
+              :titulo="t(BLOCO_TITULO[bloco] ?? bloco)"
+              :definicoes="defs"
+              com-decisao
+              :is-submitting="isSubmitting"
+              :ultimo-envio="ultimoEnvioPorBloco[bloco]"
+              :enviado="blocoEnviadoNestaVisita.has(bloco)"
+              @enviar="payload => onEnviarBloco(bloco, payload)"
+            />
+            <p
+              v-if="responsavelBloco[bloco]"
+              class="px-1 text-label-small text-n-slate-10 flex items-center gap-1"
+            >
+              <span class="i-lucide-user-check size-3" />
+              {{ responsavelBloco[bloco] }}
+            </p>
+          </div>
         </div>
       </template>
     </div>
