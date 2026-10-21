@@ -54,7 +54,12 @@
       "BLOCO_HISTORICO_CLINICO": "1 — Clinical History",
       "BLOCO_REDE_APOIO": "2 — Support Network and Contacts",
       "BLOCO_ENVIADO": "Block recorded in the clinical file.",
-      "CRIADO": "Patient admitted. The card will appear in the Admission column."
+      "CRIADO": "Patient admitted. The card will appear in the Admission column.",
+      "ATRIBUICAO_PROFISSIONAL": "Professional Assignment",
+      "MEDICO_RESPONSAVEL": "Responsible Physician",
+      "PSICOLOGO_GERENTE_CASO": "Case Manager Psychologist",
+      "PROFISSIONAL_OPCIONAL": "Not defined (optional)",
+      "ATRIBUICAO_OPCIONAL_DICA": "Can be changed later in the patient's record."
     },
     "CAMPO": {
       "SELECIONE": "Select",
