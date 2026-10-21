@@ -36,18 +36,30 @@ class Focoh::SupabaseTokenService
     issued_at + EXPIRY_MINUTES.minutes
   end
 
+  # Retorna todos os papéis clínicos do usuário (aceita CSV em focoh_clinical_role,
+  # ex: "psicologo,coordenacao_tecnica").
+  def clinical_roles
+    raw = user.custom_attributes&.dig(CUSTOM_ATTRIBUTE)
+    raise MissingClinicalRole if raw.blank?
+
+    roles = raw.to_s.split(',').map(&:strip).reject(&:blank?)
+    raise MissingClinicalRole if roles.empty?
+
+    invalid = roles.reject { |r| PAPEIS_CLINICOS.include?(r) }
+    raise InvalidClinicalRole unless invalid.empty?
+
+    roles
+  end
+
+  # Papel principal para a RLS (papel_atual() lê app_metadata.role como string).
   def clinical_role
-    role = user.custom_attributes&.dig(CUSTOM_ATTRIBUTE)
-
-    raise MissingClinicalRole if role.blank?
-    raise InvalidClinicalRole unless PAPEIS_CLINICOS.include?(role)
-
-    role
+    clinical_roles.first
   end
 
   private
 
   def token_payload
+    roles = clinical_roles
     {
       sub: supabase_user_id,
       aud: 'authenticated',
@@ -55,7 +67,7 @@ class Focoh::SupabaseTokenService
       # app_metadata, que é onde `focoh_interno.papel_atual()` o procura.
       role: 'authenticated',
       email: user.email,
-      app_metadata: { provider: 'chatwoot', role: clinical_role },
+      app_metadata: { provider: 'chatwoot', role: roles.first, roles: roles },
       user_metadata: { name: user.name },
       iat: issued_at.to_i,
       exp: expires_at.to_i
