@@ -2,6 +2,7 @@
   "KANBAN": {
     "HEADER": "Kanban Clínico",
     "SUBTITULO": "Jornada do paciente — Rede Focoh",
+    "BUSCA_PACIENTE": "Buscar paciente...",
     "COLUNA_VAZIA": "Nenhum paciente nesta fase",
     "PROGRAMA_JORNADA": "Jornada de Superação",
     "PROGRAMA_DETOX": "Detox (30 dias)",
