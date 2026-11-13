@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -10,12 +10,13 @@ const route = useRoute();
 const router = useRouter();
 const store = useStore();
 
-// Papel → coluna de atribuição no Supabase
 const PAPEL_COLUNA = {
   medico_psiquiatra: 'medico_responsavel_chatwoot_id',
   psicologo: 'psicologo_gerente_caso_chatwoot_id',
   coordenacao_tecnica: 'psicologo_gerente_caso_chatwoot_id',
 };
+
+const TODOS_TIPOS_LAUDO = ['clinico', 'terapeutico', 'disciplinar'];
 
 // --- Estado ---
 const isLoading = ref(true);
@@ -23,11 +24,11 @@ const erro = ref(null);
 const papeisAtuais = ref([]);
 const nomeAtual = ref(null);
 const atividades = ref([]);
+const filtroStatus = ref('pendente'); // 'pendente' | 'aprovado' | 'todos'
+const filtroVisao = ref('meu'); // 'meu' | 'equipe'
 
-// Papel principal (primeiro) — mantido para compatibilidade com template.
 const papelAtual = computed(() => papeisAtuais.value[0] ?? null);
 
-// --- Papel → tipo de laudo ---
 const PAPEL_LAUDO = {
   medico_psiquiatra:   'clinico',
   psicologo:           'terapeutico',
@@ -62,7 +63,6 @@ const FASE_LABEL = {
   alta_transicao:    'Alta Pós-Detox',
 };
 
-// Tipos de laudo únicos derivados de todos os papéis ativos.
 const tiposLaudo = computed(() =>
   [...new Set(papeisAtuais.value.map(r => PAPEL_LAUDO[r]).filter(Boolean))]
 );
@@ -72,13 +72,30 @@ const laudoLabel = computed(() => {
   return labels.length ? labels.join(', ') : null;
 });
 
+const ehCoordenador = computed(() =>
+  papeisAtuais.value.some(r => ['coordenacao_tecnica', 'diretor_geral'].includes(r))
+);
+
 const semDeAtividades = computed(() =>
   papeisAtuais.value.length > 0 &&
   tiposLaudo.value.length === 0 &&
   papeisAtuais.value.every(r => ['recepcao', 'enfermeiro_rt', 'gerente_familias'].includes(r))
 );
 
-// Segunda-feira da semana atual (ISO: seg a dom)
+const atividadesFiltradas = computed(() => {
+  if (filtroStatus.value === 'pendente') {
+    return atividades.value.filter(p => p.laudoStatus !== 'aprovado');
+  }
+  if (filtroStatus.value === 'aprovado') {
+    return atividades.value.filter(p => p.laudoStatus === 'aprovado');
+  }
+  return atividades.value;
+});
+
+const totalPendentes = computed(() =>
+  atividades.value.filter(p => p.laudoStatus !== 'aprovado').length
+);
+
 function semanaAtualRef() {
   const hoje = new Date();
   const diaSemana = hoje.getDay() === 0 ? 7 : hoje.getDay();
@@ -106,35 +123,41 @@ const carregarAtividades = async () => {
   try {
     const token = await obterFocohToken();
     const payload = decodeJwtPayload(token);
-    // Lê `roles` (array, FOCO-105) com fallback para `role` (string legado).
     const roles = payload?.app_metadata?.roles ??
       (payload?.app_metadata?.role ? [payload.app_metadata.role] : []);
     papeisAtuais.value = roles;
     nomeAtual.value = payload?.user_metadata?.name ?? null;
 
-    const tipos = [...new Set(roles.map(r => PAPEL_LAUDO[r]).filter(Boolean))];
-    if (!tipos.length) { isLoading.value = false; return; }
+    const modoEquipe = filtroVisao.value === 'equipe';
+
+    // Em modo equipe mostra todos os tipos; senão apenas os tipos do profissional
+    const tipos = modoEquipe
+      ? TODOS_TIPOS_LAUDO
+      : [...new Set(roles.map(r => PAPEL_LAUDO[r]).filter(Boolean))];
+
+    if (!tipos.length && !modoEquipe) { isLoading.value = false; return; }
 
     const semana = semanaAtualRef();
-
-    // Determina coluna de filtro com base no papel (primeiro papel com coluna mapeada)
     const currentAgentId = store.getters['auth/getCurrentUser']?.id ?? null;
-    const papelComColuna = roles.find(r => PAPEL_COLUNA[r]);
-    const colunaFiltro = papelComColuna ? PAPEL_COLUNA[papelComColuna] : null;
 
-    // 1. Pacientes não-arquivados, filtrados por profissional responsável quando aplicável
     let query = supabase
       .from('pacientes')
       .select('id, nome, fase, programa')
       .eq('arquivado', false)
       .order('nome');
-    if (colunaFiltro && currentAgentId) {
-      query = query.eq(colunaFiltro, currentAgentId);
+
+    // Filtra por profissional responsável apenas no modo "meu"
+    if (!modoEquipe) {
+      const papelComColuna = roles.find(r => PAPEL_COLUNA[r]);
+      const colunaFiltro = papelComColuna ? PAPEL_COLUNA[papelComColuna] : null;
+      if (colunaFiltro && currentAgentId) {
+        query = query.eq(colunaFiltro, currentAgentId);
+      }
     }
+
     const { data: pacientes, error: errPac } = await query;
     if (errPac) throw errPac;
 
-    // 2. Laudos já entregues esta semana para todos os tipos do profissional
     const ids = (pacientes ?? []).map(p => p.id);
     let laudosEntregues = [];
     if (ids.length) {
@@ -148,32 +171,38 @@ const carregarAtividades = async () => {
       laudosEntregues = laudos ?? [];
     }
 
-    // entreguesMap[paciente_id][tipo] = laudo
     const entreguesMap = {};
     for (const l of laudosEntregues) {
       if (!entreguesMap[l.paciente_id]) entreguesMap[l.paciente_id] = {};
       entreguesMap[l.paciente_id][l.tipo] = l;
     }
 
-    atividades.value = (pacientes ?? [])
-      .map(p => {
-        const porTipo = entreguesMap[p.id] ?? {};
-        const todosAprovados = tipos.every(t => porTipo[t]?.aprovado);
-        const algumEntregue  = tipos.some(t => porTipo[t]);
-        return {
-          ...p,
-          laudoStatus: todosAprovados ? 'aprovado'
-            : algumEntregue ? 'pendente'
-            : 'ausente',
-        };
-      })
-      .filter(p => p.laudoStatus !== 'aprovado');
+    atividades.value = (pacientes ?? []).map(p => {
+      const porTipo = entreguesMap[p.id] ?? {};
+      const todosAprovados = tipos.every(t => porTipo[t]?.aprovado);
+      const algumEntregue  = tipos.some(t => porTipo[t]);
+      const pendentesCount = tipos.filter(t => !porTipo[t]?.aprovado).length;
+      return {
+        ...p,
+        laudoStatus: todosAprovados ? 'aprovado' : algumEntregue ? 'pendente' : 'ausente',
+        pendentesCount,
+        laudosPorTipo: tipos.map(t => ({
+          tipo: t,
+          label: LAUDO_LABEL[t],
+          entregue: !!porTipo[t],
+          aprovado: !!porTipo[t]?.aprovado,
+        })),
+      };
+    });
   } catch (e) {
     erro.value = e.message ?? 'Erro ao carregar atividades.';
   } finally {
     isLoading.value = false;
   }
 };
+
+// Recarrega quando muda visão (precisa de nova query); status é só filtro local
+watch(filtroVisao, carregarAtividades);
 
 const abrirLaudo = pacienteId => {
   router.push({
@@ -221,6 +250,69 @@ onMounted(carregarAtividades);
           <span class="i-lucide-refresh-cw w-4 h-4" />
         </button>
       </div>
+
+      <!-- Filtros -->
+      <div v-if="papeisAtuais.length && !semDeAtividades" class="mt-4 flex flex-wrap items-center gap-3">
+        <!-- Visão: Minhas / Equipe — apenas para coordenadores -->
+        <div v-if="ehCoordenador" class="flex items-center gap-1 p-1 rounded-lg bg-n-surface-2 border border-n-weak">
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-label-small font-medium transition-colors"
+            :class="filtroVisao === 'meu'
+              ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
+              : 'text-n-slate-10 hover:text-n-slate-12'"
+            @click="filtroVisao = 'meu'"
+          >
+            <span class="i-lucide-user w-3.5 h-3.5 mr-1 inline-block align-middle" />
+            Minhas
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-label-small font-medium transition-colors"
+            :class="filtroVisao === 'equipe'
+              ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
+              : 'text-n-slate-10 hover:text-n-slate-12'"
+            @click="filtroVisao = 'equipe'"
+          >
+            <span class="i-lucide-users w-3.5 h-3.5 mr-1 inline-block align-middle" />
+            Equipe
+          </button>
+        </div>
+
+        <!-- Status filter -->
+        <div class="flex items-center gap-1 p-1 rounded-lg bg-n-surface-2 border border-n-weak">
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-label-small font-medium transition-colors"
+            :class="filtroStatus === 'pendente'
+              ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
+              : 'text-n-slate-10 hover:text-n-slate-12'"
+            @click="filtroStatus = 'pendente'"
+          >
+            Pendentes
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-label-small font-medium transition-colors"
+            :class="filtroStatus === 'aprovado'
+              ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
+              : 'text-n-slate-10 hover:text-n-slate-12'"
+            @click="filtroStatus = 'aprovado'"
+          >
+            Em dia
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-label-small font-medium transition-colors"
+            :class="filtroStatus === 'todos'
+              ? 'bg-n-solid-1 text-n-slate-12 shadow-sm'
+              : 'text-n-slate-10 hover:text-n-slate-12'"
+            @click="filtroStatus = 'todos'"
+          >
+            Todos
+          </button>
+        </div>
+      </div>
     </header>
 
     <!-- Body -->
@@ -247,12 +339,16 @@ onMounted(carregarAtividades);
         Papel clínico não identificado. Verifique se o atributo <code>focoh_clinical_role</code> está configurado para o seu usuário.
       </div>
 
-      <!-- Tudo em dia -->
-      <div v-else-if="!atividades.length" class="flex flex-col items-center justify-center py-20 gap-3 text-n-slate-10">
+      <!-- Nenhum resultado para o filtro selecionado -->
+      <div v-else-if="!atividadesFiltradas.length" class="flex flex-col items-center justify-center py-20 gap-3 text-n-slate-10">
         <span class="i-lucide-check-circle text-4xl text-n-teal-9" />
-        <p class="text-body-main font-medium text-n-teal-11">Tudo em dia!</p>
-        <p class="text-label-small text-center max-w-xs">
-          Todos os {{ laudoLabel }}s desta semana já foram entregues.
+        <p class="text-body-main font-medium text-n-teal-11">
+          <template v-if="filtroStatus === 'pendente'">Tudo em dia!</template>
+          <template v-else-if="filtroStatus === 'aprovado'">Nenhum laudo aprovado esta semana.</template>
+          <template v-else>Nenhum paciente encontrado.</template>
+        </p>
+        <p v-if="filtroStatus === 'pendente'" class="text-label-small text-center max-w-xs">
+          Todos os laudos desta semana já foram entregues.
         </p>
       </div>
 
@@ -261,44 +357,92 @@ onMounted(carregarAtividades);
         <!-- Contexto da semana -->
         <div class="mb-4 flex items-center justify-between">
           <p class="text-body-sm text-n-slate-11">
-            <span class="font-medium">{{ laudoLabel }}</span>
+            <span v-if="filtroVisao === 'equipe'" class="font-medium">Toda a equipe</span>
+            <span v-else class="font-medium">{{ laudoLabel }}</span>
             — semana de
             <span class="font-medium">{{ new Date(semanaAtualRef() + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) }}</span>
           </p>
-          <span class="text-label-small text-n-slate-10 bg-n-amber-2 border border-n-amber-6 rounded-full px-2.5 py-0.5 text-n-amber-11 font-medium">
-            {{ atividades.length }} pendente{{ atividades.length > 1 ? 's' : '' }}
+          <span
+            v-if="filtroStatus !== 'aprovado' && totalPendentes > 0"
+            class="text-label-small text-n-amber-11 bg-n-amber-2 border border-n-amber-6 rounded-full px-2.5 py-0.5 font-medium"
+          >
+            {{ totalPendentes }} pendente{{ totalPendentes > 1 ? 's' : '' }}
+          </span>
+          <span
+            v-else-if="filtroStatus === 'aprovado'"
+            class="text-label-small text-n-teal-11 bg-n-teal-2 border border-n-teal-6 rounded-full px-2.5 py-0.5 font-medium"
+          >
+            {{ atividadesFiltradas.length }} em dia
           </span>
         </div>
 
-        <!-- Nota sobre atribuição -->
+        <!-- Nota contextual -->
         <div class="mb-5 p-3 rounded-lg bg-n-surface-2 border border-n-weak text-label-small text-n-slate-11 flex gap-2">
           <span class="i-lucide-info w-4 h-4 shrink-0 mt-0.5 text-n-slate-10" />
-          <span>Exibindo pacientes sob sua responsabilidade sem laudo entregue esta semana.</span>
+          <span v-if="filtroVisao === 'equipe'">
+            Exibindo todos os pacientes internados. Tipos de laudo: Clínico, Terapêutico e Disciplinar.
+          </span>
+          <span v-else>
+            Exibindo pacientes sob sua responsabilidade sem laudo entregue esta semana.
+          </span>
         </div>
 
         <ul class="flex flex-col gap-2">
           <li
-            v-for="pac in atividades"
+            v-for="pac in atividadesFiltradas"
             :key="pac.id"
             class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-n-weak bg-n-solid-1 hover:bg-n-surface-2 transition-colors"
           >
-            <div class="flex flex-col gap-0.5 min-w-0">
-              <span class="text-body-sm font-medium text-n-slate-12 truncate">{{ pac.nome }}</span>
+            <div class="flex flex-col gap-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-body-sm font-medium text-n-slate-12 truncate">{{ pac.nome }}</span>
+                <span
+                  v-if="pac.laudoStatus === 'aprovado'"
+                  class="shrink-0 text-label-small text-n-teal-11 font-medium"
+                >Em dia</span>
+                <span
+                  v-else-if="pac.laudoStatus === 'pendente'"
+                  class="shrink-0 text-label-small text-n-amber-11 font-medium"
+                >Parcial</span>
+              </div>
               <span class="text-label-small text-n-slate-10">
                 {{ FASE_LABEL[pac.fase] ?? pac.fase }}
-                <span
-                  v-if="pac.laudoStatus === 'pendente'"
-                  class="ml-2 text-n-amber-11 font-medium"
-                >Entregue mas não aprovado</span>
               </span>
+              <!-- Badges de tipos de laudo (modo equipe) -->
+              <div v-if="filtroVisao === 'equipe'" class="flex flex-wrap gap-1 mt-0.5">
+                <span
+                  v-for="l in pac.laudosPorTipo"
+                  :key="l.tipo"
+                  class="text-label-small px-2 py-0.5 rounded-full border font-medium"
+                  :class="l.aprovado
+                    ? 'bg-n-teal-2 border-n-teal-6 text-n-teal-11'
+                    : l.entregue
+                      ? 'bg-n-amber-2 border-n-amber-6 text-n-amber-11'
+                      : 'bg-n-surface-2 border-n-weak text-n-slate-10'"
+                >
+                  {{ l.label.replace('Laudo ', '') }}
+                  <span v-if="l.aprovado"> ✓</span>
+                  <span v-else-if="l.entregue"> ⏳</span>
+                </span>
+              </div>
+              <!-- Status simples (modo meu) -->
+              <span
+                v-else-if="pac.laudoStatus === 'pendente'"
+                class="text-label-small text-n-amber-11"
+              >Entregue mas não aprovado</span>
             </div>
             <Button
+              v-if="pac.laudoStatus !== 'aprovado'"
               label="Preencher"
               icon="i-lucide-edit-3"
               size="sm"
               variant="outline"
               color-scheme="secondary"
               @click="abrirLaudo(pac.id)"
+            />
+            <span
+              v-else
+              class="i-lucide-check-circle w-5 h-5 text-n-teal-9 shrink-0"
             />
           </li>
         </ul>
