@@ -57,4 +57,4 @@ INSERT INTO public.definicoes_formulario
 VALUES
     (null, 'avaliacao_risco', null, null, 'nome_enfermeiro',  'Nome do Enfermeiro',  'texto', true, 'historico', 90, true),
     (null, 'avaliacao_risco', null, null, 'coren_enfermeiro', 'COREN do Enfermeiro', 'texto', true, 'historico', 91, true)
-ON CONFLICT ON CONSTRAINT definicoes_formulario_chave_unica DO NOTHING;
+ON CONFLICT DO NOTHING;
