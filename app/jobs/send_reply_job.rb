@@ -17,9 +17,6 @@ class SendReplyJob < ApplicationJob
 
   def perform(message_id)
     message = Message.find(message_id)
-    # DIAG FOCO-126: confirmar que o job está sendo executado
-    message.update!(external_error: "DIAG_JOB: executed at #{Time.current.iso8601}")
-
     channel_name = message.conversation.inbox.channel.class.to_s
 
     return send_on_facebook_page(message) if channel_name == 'Channel::FacebookPage'
