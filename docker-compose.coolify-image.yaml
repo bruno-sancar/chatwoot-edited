@@ -107,6 +107,8 @@ services:
       BAILEYS_API_LOG_LEVEL: ${BAILEYS_API_LOG_LEVEL:-info}
       REDIS_URL: ${REDIS_URL}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      # Aceitar mensagens de qualquer número, incluindo WhatsApp Business
+      IGNORE_BOT_MESSAGES: "false"
     command:
       - sh
       - -c
