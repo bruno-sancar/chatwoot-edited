@@ -858,7 +858,7 @@ class Whatsapp::Providers::WhatsappBaileysService < Whatsapp::Providers::BaseSer
     )
 
     # DIAG FOCO-126: captura resposta do baileys-api no banco (remove após diagnóstico)
-    @message.update_column(:external_error, "DIAG #{response.code}: #{response.body.to_s.truncate(400)}")
+    @message.update_column(:content_attributes, (@message.content_attributes || {}).merge('external_error' => "DIAG #{response.code}: #{response.body.to_s.truncate(400)}"))
 
     raise_send_error(response) unless response.success?
 
