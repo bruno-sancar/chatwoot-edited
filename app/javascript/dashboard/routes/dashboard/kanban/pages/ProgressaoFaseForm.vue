@@ -10,6 +10,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import FocohBlocoFormulario from '../components/FocohBlocoFormulario.vue';
 import FocohNavegacaoPaciente from '../components/FocohNavegacaoPaciente.vue';
 import { useFocohFormularios } from '../composables/useFocohFormularios';
+import { useFocohKanban } from '../useFocohKanban';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
 const { t } = useI18n();
@@ -39,10 +40,28 @@ const BLOCO_TITULO = {
 
 const BLOCOS_COM_DECISAO = new Set(['clinico', 'terapeutico', 'disciplinar']);
 
+const PROXIMA_FASE = {
+  admissao_triagem:  'fase1_autocritica',
+  fase1_autocritica: 'fase2_disciplina',
+  fase2_disciplina:  'fase3_empatia',
+  fase3_empatia:     'fase4_identidade',
+  fase4_identidade:  'alta_hospitalar',
+};
+
+const LAUDO_LABEL = {
+  clinico:     'Clínico',
+  terapeutico: 'Terapêutico',
+  disciplinar: 'Disciplinar',
+};
+
+const { moverPaciente } = useFocohKanban();
+
 const paciente = ref(null);
 const isLoadingPaciente = ref(true);
 const erroPaciente = ref(null);
 const blocoEnviadoNestaVisita = ref(new Set());
+const cardData = ref(null);
+const isAvancando = ref(false);
 
 const {
   definicoes,
@@ -56,6 +75,8 @@ const {
 } = useFocohFormularios();
 
 const transicao = computed(() => TRANSICAO_POR_FASE[paciente.value?.fase] ?? null);
+const podeAvancar = computed(() => cardData.value?.pode_avancar ?? false);
+const laudosPendentes = computed(() => cardData.value?.laudos_pendentes ?? []);
 
 const blocos = computed(() => {
   const ordemMap = Object.fromEntries(BLOCO_ORDEM.map((b, i) => [b, i]));
@@ -81,6 +102,15 @@ const ultimoEnvioPorBloco = computed(() => {
     });
   return mapa;
 });
+
+const carregarCardData = async () => {
+  const supabase = getFocohSupabaseClient();
+  if (!supabase) return;
+  try {
+    const { data, error } = await supabase.rpc('cards_do_quadro');
+    if (!error) cardData.value = (data ?? []).find(c => c.id === pacienteId) ?? null;
+  } catch (_) { /* silencioso — não impede o formulário */ }
+};
 
 const carregarPaciente = async () => {
   const supabase = getFocohSupabaseClient();
@@ -122,8 +152,25 @@ const onEnviarBloco = async (bloco, { respostas, resultado }) => {
     useAlert(t('FOCOH_KANBAN.PROGRESSAO.ENVIADO'));
     blocoEnviadoNestaVisita.value = new Set([...blocoEnviadoNestaVisita.value, bloco]);
     await carregarHistorico(pacienteId);
+    await carregarCardData();
   } else {
     useAlert(error?.message ?? t('FOCOH_KANBAN.BLOCO.ENVIAR'));
+  }
+};
+
+const onAvancarFase = async () => {
+  if (!podeAvancar.value) return;
+  const faseDestino = PROXIMA_FASE[paciente.value?.fase];
+  if (!faseDestino) return;
+
+  isAvancando.value = true;
+  const { ok, error } = await moverPaciente(pacienteId, faseDestino);
+  isAvancando.value = false;
+
+  if (ok) {
+    router.push({ name: 'kanban_clinico', params: { accountId: route.params.accountId } });
+  } else {
+    useAlert(error?.message ?? 'Avanço bloqueado. Verifique as pendências com a equipe.');
   }
 };
 
@@ -135,7 +182,7 @@ onMounted(async () => {
       etapa: transicao.value,
     });
   }
-  await carregarHistorico(pacienteId);
+  await Promise.all([carregarHistorico(pacienteId), carregarCardData()]);
 });
 </script>
 
@@ -191,6 +238,39 @@ onMounted(async () => {
             :enviado="blocoEnviadoNestaVisita.has(bloco)"
             @enviar="payload => onEnviarBloco(bloco, payload)"
           />
+
+          <!-- FOCO-115: Botão de avanço de fase com trava de laudos semanais -->
+          <div class="border-t border-n-weak pt-5 mt-1 flex flex-col gap-3">
+            <div
+              v-if="!podeAvancar"
+              class="flex flex-col gap-1.5 rounded-xl p-4 bg-n-amber-2 border border-n-amber-6"
+            >
+              <p class="text-body-sm font-medium text-n-amber-11">
+                Avanço de fase bloqueado
+              </p>
+              <p class="text-label-small text-n-amber-10">
+                <template v-if="laudosPendentes.length > 0">
+                  Laudos pendentes desta semana:
+                  <span
+                    v-for="tipo in laudosPendentes"
+                    :key="tipo"
+                    class="inline-flex items-center mx-0.5 px-1.5 py-0.5 rounded bg-n-amber-3 text-n-amber-11 text-label-small"
+                  >{{ LAUDO_LABEL[tipo] ?? tipo }}</span>
+                </template>
+                <template v-else>
+                  Risco ativo — avaliação de risco pendente ou nível acima de Baixo.
+                </template>
+              </p>
+            </div>
+
+            <Button
+              :label="isAvancando ? 'Avançando...' : 'Avançar para próxima fase'"
+              icon="i-lucide-arrow-right"
+              :is-loading="isAvancando"
+              :disabled="!podeAvancar || isAvancando"
+              @click="onAvancarFase"
+            />
+          </div>
         </div>
       </template>
     </div>
