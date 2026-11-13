@@ -857,10 +857,10 @@ class Whatsapp::Providers::WhatsappBaileysService < Whatsapp::Providers::BaseSer
       timeout: 90
     )
 
-    raise_send_error(response) unless response.success?
+    # DIAG FOCO-126: captura resposta do baileys-api no banco (remove após diagnóstico)
+    @message.update_column(:external_error, "DIAG #{response.code}: #{response.body.to_s.truncate(400)}")
 
-    # DIAG FOCO-126 — remove after fix
-    Rails.logger.info "[WHATSAPP][BAILEYS][DIAG] send ok jid=#{remote_jid} code=#{response.code} key_id=#{response.parsed_response&.dig('data', 'key', 'id').inspect} body=#{response.body.to_s.truncate(500)}"
+    raise_send_error(response) unless response.success?
 
     update_external_created_at(response)
     response.parsed_response.dig('data', 'key', 'id')
