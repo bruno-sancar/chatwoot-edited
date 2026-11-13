@@ -148,6 +148,8 @@ services:
       BAILEYS_API_LOG_LEVEL: ${BAILEYS_API_LOG_LEVEL:-info}
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Aceitar mensagens de qualquer número, incluindo WhatsApp Business
+      IGNORE_BOT_MESSAGES: "false"
     # O `|| true` é de propósito: no segundo boot a criação da chave falha
     # porque ela já existe, e com `&&` isso impediria o serviço de subir depois
     # de qualquer restart.

@@ -857,6 +857,9 @@ class Whatsapp::Providers::WhatsappBaileysService < Whatsapp::Providers::BaseSer
       timeout: 90
     )
 
+    # DIAG FOCO-126: captura resposta do baileys-api no banco (remove após diagnóstico)
+    @message.update_column(:external_error, "DIAG #{response.code}: #{response.body.to_s.truncate(400)}")
+
     raise_send_error(response) unless response.success?
 
     update_external_created_at(response)
@@ -1294,3 +1297,4 @@ class Whatsapp::Providers::WhatsappBaileysService < Whatsapp::Providers::BaseSer
                       :group_join_approval_mode,
                       :group_member_add_mode
 end
+
