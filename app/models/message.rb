@@ -455,6 +455,13 @@ class Message < ApplicationRecord
     # rubocop:enable Rails/SkipsModelValidations
   end
 
+  def update_under_lock!(**attrs)
+    with_lock do
+      merged = (content_attributes || {}).merge(attrs.transform_keys(&:to_s))
+      update_column(:content_attributes, merged)
+    end
+  end
+
   def reindex_for_search
     return unless respond_to?(:reindex)
 
