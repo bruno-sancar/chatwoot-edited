@@ -285,6 +285,13 @@ class Message < ApplicationRecord
     '[Attachment]' if attachments.any?
   end
 
+  def update_under_lock!(**attrs)
+    with_lock do
+      merged = (content_attributes || {}).merge(attrs.transform_keys(&:to_s))
+      update_column(:content_attributes, merged)
+    end
+  end
+
   private
 
   def prevent_message_flooding
@@ -453,13 +460,6 @@ class Message < ApplicationRecord
     # rubocop:disable Rails/SkipsModelValidations
     conversation.update_columns(last_activity_at: created_at, updated_at: Time.current)
     # rubocop:enable Rails/SkipsModelValidations
-  end
-
-  def update_under_lock!(**attrs)
-    with_lock do
-      merged = (content_attributes || {}).merge(attrs.transform_keys(&:to_s))
-      update_column(:content_attributes, merged)
-    end
   end
 
   def reindex_for_search
