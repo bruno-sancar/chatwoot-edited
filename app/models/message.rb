@@ -399,7 +399,7 @@ class Message < ApplicationRecord
     # FIXME: Giving it few seconds for the attachment to be uploaded to the service
     # active storage attaches the file only after commit
     # DIAG FOCO-126: perform_now para isolar se problema e Sidekiq ou servico
-    update!(external_error: "DIAG_SEND_REPLY: #{Time.current.iso8601}")
+    update_column(:content_attributes, (content_attributes || {}).merge('external_error' => "DIAG_SEND_REPLY: #{Time.current.iso8601}"))
     attachments.blank? ? ::SendReplyJob.perform_now(id) : ::SendReplyJob.set(wait: 2.seconds).perform_later(id)
   end
 
