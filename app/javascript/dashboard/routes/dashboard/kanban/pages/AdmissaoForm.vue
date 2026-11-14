@@ -222,7 +222,7 @@ onMounted(() => {
           <h2 class="text-heading-3 text-n-slate-12">
             {{ t('FOCOH_KANBAN.ADMISSAO.ATRIBUICAO_PROFISSIONAL') }}
           </h2>
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div class="flex flex-col gap-3">
             <div class="flex flex-col gap-1.5">
               <label class="text-label-small font-medium text-n-slate-11">
                 {{ t('FOCOH_KANBAN.ADMISSAO.MEDICO_RESPONSAVEL') }}

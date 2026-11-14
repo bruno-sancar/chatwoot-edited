@@ -59,7 +59,9 @@
       "MEDICO_RESPONSAVEL": "Médico Responsável",
       "PSICOLOGO_GERENTE_CASO": "Psicólogo Gerente de Caso",
       "PROFISSIONAL_OPCIONAL": "Não definido (opcional)",
-      "ATRIBUICAO_OPCIONAL_DICA": "Pode ser alterado posteriormente no prontuário do paciente."
+      "ATRIBUICAO_OPCIONAL_DICA": "Pode ser alterado posteriormente no prontuário do paciente.",
+      "ATRIBUICAO_SALVAR": "Salvar Atribuição",
+      "ATRIBUICAO_SALVA": "Atribuição profissional salva."
     },
     "CAMPO": {
       "SELECIONE": "Selecione",

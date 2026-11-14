@@ -10,11 +10,20 @@ import FocohNavegacaoPaciente from '../components/FocohNavegacaoPaciente.vue';
 import { useFocohFormularios } from '../composables/useFocohFormularios';
 import { getFocohSupabaseClient, obterFocohToken } from '../focohSupabaseClient';
 
+const TEAM_MEDICOS = 9;
+const TEAM_PSICOLOGOS = 12;
+
 const { t } = useI18n();
 const store = useStore();
 const currentUserName = () => store.getters['auth/getCurrentUser']?.name ?? '';
 const route = useRoute();
 const pacienteId = route.params.pacienteId;
+
+const medicoSelecionadoId = ref(null);
+const psicologoSelecionadoId = ref(null);
+const salvandoAtribuicao = ref(false);
+const medicos = computed(() => store.getters['teamMembers/getTeamMembers'](TEAM_MEDICOS));
+const psicologos = computed(() => store.getters['teamMembers/getTeamMembers'](TEAM_PSICOLOGOS));
 
 const BLOCO_TITULO = {
   historico_clinico: 'FOCOH_KANBAN.ADMISSAO.BLOCO_HISTORICO_CLINICO',
@@ -73,10 +82,12 @@ const carregarPaciente = async () => {
     await obterFocohToken();
     const { data } = await supabase
       .from('pacientes')
-      .select('id, nome, programa, dados_cadastrais')
+      .select('id, nome, programa, dados_cadastrais, medico_responsavel_chatwoot_id, psicologo_gerente_caso_chatwoot_id')
       .eq('id', pacienteId)
       .single();
     paciente.value = data;
+    medicoSelecionadoId.value = data?.medico_responsavel_chatwoot_id ?? null;
+    psicologoSelecionadoId.value = data?.psicologo_gerente_caso_chatwoot_id ?? null;
   } finally {
     isLoadingPaciente.value = false;
   }
@@ -128,12 +139,35 @@ const onEnviarBloco = async (bloco, { respostas }) => {
   }
 };
 
+const salvarAtribuicao = async () => {
+  const supabase = getFocohSupabaseClient();
+  if (!supabase) return;
+  salvandoAtribuicao.value = true;
+  try {
+    const { error } = await supabase
+      .from('pacientes')
+      .update({
+        medico_responsavel_chatwoot_id: medicoSelecionadoId.value,
+        psicologo_gerente_caso_chatwoot_id: psicologoSelecionadoId.value,
+      })
+      .eq('id', pacienteId);
+    if (error) throw error;
+    useAlert(t('FOCOH_KANBAN.ADMISSAO.ATRIBUICAO_SALVA'));
+  } catch (err) {
+    useAlert(err?.message ?? t('FOCOH_KANBAN.BLOCO.ENVIAR'));
+  } finally {
+    salvandoAtribuicao.value = false;
+  }
+};
+
 onMounted(async () => {
   await carregarPaciente();
   await Promise.all([
     carregarA('admissao', { etapa: 'aba_a' }),
     carregarBC('admissao', { programa: paciente.value?.programa, etapa: 'aba_bc' }),
     carregarHistorico(pacienteId),
+    store.dispatch('teamMembers/get', { teamId: TEAM_MEDICOS }),
+    store.dispatch('teamMembers/get', { teamId: TEAM_PSICOLOGOS }),
   ]);
 });
 </script>
@@ -160,6 +194,64 @@ onMounted(async () => {
         </div>
 
         <div v-else class="flex flex-col gap-4">
+          <!-- Seção: Atribuição Profissional -->
+          <div class="flex flex-col gap-4 p-4 rounded-xl border border-n-strong bg-n-surface-2">
+            <h2 class="text-heading-3 text-n-slate-12">
+              {{ t('FOCOH_KANBAN.ADMISSAO.ATRIBUICAO_PROFISSIONAL') }}
+            </h2>
+            <div class="flex flex-col gap-3">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-label-small font-medium text-n-slate-11">
+                  {{ t('FOCOH_KANBAN.ADMISSAO.MEDICO_RESPONSAVEL') }}
+                </label>
+                <div class="relative">
+                  <select
+                    v-model="medicoSelecionadoId"
+                    class="w-full appearance-none rounded-lg border border-n-strong bg-n-surface-1 px-3 py-2 pr-8 text-body-sm text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+                  >
+                    <option :value="null">{{ t('FOCOH_KANBAN.ADMISSAO.PROFISSIONAL_OPCIONAL') }}</option>
+                    <option v-for="m in medicos" :key="m.id" :value="m.id">
+                      {{ m.name }}
+                    </option>
+                  </select>
+                  <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-n-slate-10">
+                    <span class="i-lucide-chevron-down size-4" />
+                  </span>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-label-small font-medium text-n-slate-11">
+                  {{ t('FOCOH_KANBAN.ADMISSAO.PSICOLOGO_GERENTE_CASO') }}
+                </label>
+                <div class="relative">
+                  <select
+                    v-model="psicologoSelecionadoId"
+                    class="w-full appearance-none rounded-lg border border-n-strong bg-n-surface-1 px-3 py-2 pr-8 text-body-sm text-n-slate-12 focus:outline-none focus:ring-2 focus:ring-n-brand"
+                  >
+                    <option :value="null">{{ t('FOCOH_KANBAN.ADMISSAO.PROFISSIONAL_OPCIONAL') }}</option>
+                    <option v-for="p in psicologos" :key="p.id" :value="p.id">
+                      {{ p.name }}
+                    </option>
+                  </select>
+                  <span class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-n-slate-10">
+                    <span class="i-lucide-chevron-down size-4" />
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-lg bg-n-brand text-white text-body-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                :disabled="salvandoAtribuicao"
+                @click="salvarAtribuicao"
+              >
+                <span v-if="salvandoAtribuicao" class="i-lucide-loader-circle size-4 animate-spin mr-1.5" />
+                {{ t('FOCOH_KANBAN.ADMISSAO.ATRIBUICAO_SALVAR') }}
+              </button>
+            </div>
+          </div>
+
           <!-- Seção A: Identificação — pré-preenchida com dados_cadastrais -->
           <FocohBlocoFormulario
             v-if="definicoesA.length"

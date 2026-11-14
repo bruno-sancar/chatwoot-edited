@@ -59,7 +59,9 @@
       "MEDICO_RESPONSAVEL": "Responsible Physician",
       "PSICOLOGO_GERENTE_CASO": "Case Manager Psychologist",
       "PROFISSIONAL_OPCIONAL": "Not defined (optional)",
-      "ATRIBUICAO_OPCIONAL_DICA": "Can be changed later in the patient's record."
+      "ATRIBUICAO_OPCIONAL_DICA": "Can be changed later in the patient's record.",
+      "ATRIBUICAO_SALVAR": "Save Assignment",
+      "ATRIBUICAO_SALVA": "Professional assignment saved."
     },
     "CAMPO": {
       "SELECIONE": "Select",
