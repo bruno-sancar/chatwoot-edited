@@ -1165,7 +1165,7 @@ class Whatsapp::Providers::WhatsappBaileysService < Whatsapp::Providers::BaseSer
     lid = extract_lid_from_participant(participant)
     phone = extract_phone_from_participant(participant)
     identifier = lid ? "#{lid}@lid" : nil
-    source_id = lid || phone
+    source_id = lid ? "#{lid}@lid" : phone
 
     return nil if source_id.blank?
 
