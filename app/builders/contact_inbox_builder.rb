@@ -41,6 +41,10 @@ class ContactInboxBuilder
   end
 
   def wa_source_id
+    # FOCO-126: LID contacts carry the full JID as their identifier (e.g. "4063460032504608@lid").
+    # Using the phone number would route to @s.whatsapp.net which is invalid for LID contacts.
+    return @contact.identifier if @contact.identifier.to_s.end_with?('@lid')
+
     raise ActionController::ParameterMissing, 'contact phone number' unless @contact.phone_number
 
     # whatsapp doesn't want the + in e164 format
@@ -105,3 +109,4 @@ class ContactInboxBuilder
 end
 
 ContactInboxBuilder.prepend_mod_with('ContactInboxBuilder')
+
