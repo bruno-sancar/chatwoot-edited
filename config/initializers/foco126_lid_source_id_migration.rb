@@ -5,9 +5,10 @@ begin
   updated = ActiveRecord::Base.connection.execute(<<~SQL).cmd_tuples
     UPDATE contact_inboxes ci
     SET source_id = c.identifier
-    FROM contacts c
-    JOIN inboxes i ON i.id = ci.inbox_id
+    FROM contacts c,
+         inboxes i
     WHERE ci.contact_id = c.id
+      AND ci.inbox_id = i.id
       AND c.identifier LIKE '%@lid'
       AND ci.source_id = split_part(c.identifier, '@', 1)
       AND i.channel_type = 'Channel::Whatsapp'
