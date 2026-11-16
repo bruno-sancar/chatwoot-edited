@@ -71,13 +71,14 @@ module Whatsapp::BaileysHandlers::Concerns::IndividualContactMessageHandler
 
   def set_contact
     phone = extract_from_jid(type: 'pn')
-    source_id = extract_from_jid(type: 'lid')
-    identifier = "#{source_id}@lid"
+    lid_num = extract_from_jid(type: 'lid')
+    source_id = "#{lid_num}@lid"
+    identifier = source_id
 
     Whatsapp::ContactInboxConsolidationService.new(
       inbox: inbox,
       phone: phone,
-      lid: source_id,
+      lid: lid_num,
       identifier: identifier
     ).perform
 
