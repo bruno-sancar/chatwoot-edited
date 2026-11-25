@@ -31,6 +31,12 @@ export const PROGRAMAS = [
   { id: 'detox_30_dias',     labelKey: 'PROGRAMA_DETOX',   fases: FASES_DETOX },
 ];
 
+export const PROGRAMA_SEM_PROGRAMA = {
+  id: '__sem_programa__',
+  labelKey: 'PROGRAMA_SEM_PROGRAMA',
+  fases: [],
+};
+
 /**
  * SQLSTATEs levantados pelas travas clínicas no Postgres.
  */
