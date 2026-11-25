@@ -1,4 +1,4 @@
-{
+﻿{
   "KANBAN": {
     "HEADER": "Kanban Clínico",
     "SUBTITULO": "Jornada do paciente — Rede Focoh",
@@ -113,7 +113,10 @@
       "HISTORICO_RECENTE": "Histórico recente",
       "VER_HISTORICO_COMPLETO": "Ver histórico completo",
       "VER_CONVERSA": "Ver conversa",
-      "SEM_CONVERSA": "Sem conversa vinculada"
+      "SEM_CONVERSA": "Sem conversa vinculada",
+      "REDE_APOIO": "Rede de Apoio",
+      "SEM_REDE_APOIO": "Rede de apoio não cadastrada na ficha",
+      "VER_CONTATOS": "Ver contatos"
     },
     "CONFIGURACOES": {
       "TITULO": "Kanban Clínico",

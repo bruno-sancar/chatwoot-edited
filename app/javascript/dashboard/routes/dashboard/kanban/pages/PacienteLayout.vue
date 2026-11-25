@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
@@ -19,6 +19,7 @@ const paciente = ref(null);
 const ultimaAvaliacaoRisco = ref(null);
 const isLoading = ref(true);
 const contatoChatwoot = ref(null);
+const redeApoio = ref(null);
 
 const FASE_LABEL = {
   admissao_triagem: 'Admissão',
@@ -109,13 +110,20 @@ const abrirConversa = () => {
   });
 };
 
+const abrirContatos = () => {
+  router.push({
+    name: 'contacts_index',
+    params: { accountId: route.params.accountId },
+  });
+};
+
 onMounted(async () => {
   const supabase = getFocohSupabaseClient();
   if (!supabase) { isLoading.value = false; return; }
 
   await obterFocohToken();
 
-  const [{ data: pac }, { data: riscos }] = await Promise.all([
+  const [{ data: pac }, { data: riscos }, { data: apoioData }] = await Promise.all([
     supabase
       .from('pacientes')
       .select('id, nome, fase, programa, data_admissao, chatwoot_conversation_id, medico_responsavel_chatwoot_id, psicologo_gerente_caso_chatwoot_id')
@@ -128,10 +136,30 @@ onMounted(async () => {
       .eq('formulario_tipo', 'avaliacao_risco')
       .order('enviado_em', { ascending: false })
       .limit(1),
+    supabase
+      .from('respostas_formulario')
+      .select('campos')
+      .eq('paciente_id', pacienteId)
+      .eq('formulario_tipo', 'admissao')
+      .eq('bloco', 'rede_apoio')
+      .order('enviado_em', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   paciente.value = pac;
   ultimaAvaliacaoRisco.value = riscos?.[0] ?? null;
+
+  if (apoioData?.campos) {
+    const get = chave => apoioData.campos.find(c => c.campo_chave === chave)?.valor ?? null;
+    redeApoio.value = {
+      responsavel_nome: get('responsavel_nome'),
+      responsavel_telefone: get('responsavel_telefone'),
+      contato_emergencia_nome: get('contato_emergencia_nome'),
+      contato_emergencia_telefone: get('contato_emergencia_telefone'),
+    };
+  }
+
   isLoading.value = false;
 
   store.dispatch('teamMembers/get', { teamId: TEAM_MEDICOS });
@@ -260,6 +288,48 @@ onMounted(async () => {
           <div v-else class="flex items-center gap-2 px-3 py-2 text-label-small text-n-slate-10">
             <span class="i-lucide-message-circle size-4 shrink-0" />
             {{ t('FOCOH_KANBAN.PAINEL.SEM_CONVERSA') }}
+          </div>
+
+          <!-- Rede de Apoio (FOCO-121) -->
+          <div class="border-t border-n-weak pt-3">
+            <p class="text-label-small font-medium text-n-slate-10 mb-1 px-1">
+              {{ t('FOCOH_KANBAN.PAINEL.REDE_APOIO') }}
+            </p>
+            <template v-if="redeApoio?.responsavel_nome">
+              <div class="flex items-start gap-2 px-1 py-1">
+                <span class="i-lucide-users size-3.5 text-n-slate-9 shrink-0 mt-0.5" />
+                <div class="min-w-0">
+                  <p class="text-body-sm font-medium text-n-slate-11 truncate">{{ redeApoio.responsavel_nome }}</p>
+                  <p v-if="redeApoio.responsavel_telefone" class="text-label-small text-n-slate-9 truncate">
+                    {{ redeApoio.responsavel_telefone }}
+                  </p>
+                </div>
+              </div>
+              <div v-if="redeApoio.contato_emergencia_nome" class="flex items-start gap-2 px-1 py-1">
+                <span class="i-lucide-phone-call size-3.5 text-n-slate-9 shrink-0 mt-0.5" />
+                <div class="min-w-0">
+                  <p class="text-body-sm font-medium text-n-slate-11 truncate">{{ redeApoio.contato_emergencia_nome }}</p>
+                  <p v-if="redeApoio.contato_emergencia_telefone" class="text-label-small text-n-slate-9 truncate">
+                    {{ redeApoio.contato_emergencia_telefone }}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="mt-1 w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-n-weak hover:bg-n-surface-2 transition-colors text-left"
+                @click="abrirContatos"
+              >
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="i-lucide-contact size-4 text-n-slate-11 shrink-0" />
+                  <span class="text-body-sm font-medium text-n-slate-12">{{ t('FOCOH_KANBAN.PAINEL.VER_CONTATOS') }}</span>
+                </div>
+                <span class="i-lucide-arrow-up-right size-4 text-n-slate-10 shrink-0" />
+              </button>
+            </template>
+            <div v-else class="flex items-center gap-2 px-1 py-1 text-label-small text-n-slate-10">
+              <span class="i-lucide-users size-4 shrink-0" />
+              {{ t('FOCOH_KANBAN.PAINEL.SEM_REDE_APOIO') }}
+            </div>
           </div>
         </div>
       </template>
