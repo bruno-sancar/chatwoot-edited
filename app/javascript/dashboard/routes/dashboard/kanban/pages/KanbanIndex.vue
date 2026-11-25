@@ -10,7 +10,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import KanbanCard from '../components/KanbanCard.vue';
 import KanbanColumn from '../components/KanbanColumn.vue';
 import { useFocohKanban } from '../useFocohKanban';
-import { PROGRAMAS, CODIGOS_TRAVA } from '../constants';
+import { PROGRAMAS, PROGRAMA_SEM_PROGRAMA, CODIGOS_TRAVA } from '../constants';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -41,15 +41,21 @@ const mensagemBloqueio = ref('');
 // Programa selecionado — começa com Jornada de Superação
 const programaSelecionado = ref(PROGRAMAS[0]);
 
+// Todos os programas incluindo filtro "sem programa"
+const TODOS_PROGRAMAS = [...PROGRAMAS, PROGRAMA_SEM_PROGRAMA];
+
+const semPrograma = computed(() => programaSelecionado.value.id === '__sem_programa__');
+
 const fasesAtivas = computed(() => programaSelecionado.value.fases);
 
 // Busca por nome do paciente
 const termoBusca = ref('');
 
-// Filtra cards pelo programa selecionado
-const cardsFiltrados = computed(() =>
-  cards.value.filter(c => c.programa === programaSelecionado.value.id)
-);
+// Filtra cards pelo programa selecionado (ou ausência de programa)
+const cardsFiltrados = computed(() => {
+  if (semPrograma.value) return cards.value.filter(c => !c.programa);
+  return cards.value.filter(c => c.programa === programaSelecionado.value.id);
+});
 
 // Aplica filtro de busca por nome sobre os cards do programa
 const cardsFiltradosBusca = computed(() => {
@@ -114,7 +120,9 @@ const abrirAtividades = () => {
 };
 
 onMounted(() => {
-  if (route.query.programa) {
+  if (route.query.programa === '__sem_programa__') {
+    programaSelecionado.value = PROGRAMA_SEM_PROGRAMA;
+  } else if (route.query.programa) {
     const p = PROGRAMAS.find(pr => pr.id === route.query.programa);
     if (p) programaSelecionado.value = p;
   }
@@ -138,8 +146,8 @@ onMounted(() => {
         <!-- Seletor de programa -->
         <div v-if="isConfigured" class="flex gap-1 p-1 rounded-lg bg-n-surface-2 w-fit">
           <button
-            v-for="programa in PROGRAMAS"
-            :key="programa.id"
+            v-for="programa in TODOS_PROGRAMAS"
+            :key="programa.id ?? '__sem_programa__'"
             type="button"
             class="px-3 py-1.5 rounded-md text-body-sm font-medium transition-colors"
             :class="
@@ -220,6 +228,30 @@ onMounted(() => {
         {{ erroCarregamento.message }}
       </p>
     </div>
+
+    <!-- Vista "Sem programa": lista plana de pacientes sem programa associado -->
+    <template v-else-if="semPrograma">
+      <main class="flex-1 px-6 py-4 overflow-y-auto">
+        <div
+          v-if="!cardsFiltradosBusca.length"
+          class="flex items-center justify-center h-32"
+        >
+          <p class="text-body-main text-n-slate-11">
+            {{ t('KANBAN.SEM_PACIENTES_SEM_PROGRAMA') }}
+          </p>
+        </div>
+        <div
+          v-else
+          class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          <KanbanCard
+            v-for="card in cardsFiltradosBusca"
+            :key="card.id"
+            :card="card"
+          />
+        </div>
+      </main>
+    </template>
 
     <template v-else>
       <main class="flex-1 hidden px-6 py-4 overflow-x-auto md:block">
