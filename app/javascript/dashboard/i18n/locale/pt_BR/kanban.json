@@ -1,4 +1,4 @@
-﻿{
+{
   "KANBAN": {
     "HEADER": "Kanban Clínico",
     "SUBTITULO": "Jornada do paciente — Rede Focoh",
@@ -6,6 +6,8 @@
     "COLUNA_VAZIA": "Nenhum paciente nesta fase",
     "PROGRAMA_JORNADA": "Jornada de Superação",
     "PROGRAMA_DETOX": "Detox (30 dias)",
+    "PROGRAMA_SEM_PROGRAMA": "Sem programa",
+    "SEM_PACIENTES_SEM_PROGRAMA": "Nenhum paciente sem programa associado.",
     "FASES": {
       "ADMISSAO_TRIAGEM": { "NOME": "Admissão e Triagem Inicial", "TEMPO": "até 72h" },
       "FASE_1": { "NOME": "Fase 1 – Autocrítica e Aceitação", "TEMPO": "3 a 6 semanas" },
